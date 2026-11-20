@@ -26,11 +26,16 @@ EPUB_PATH = PROJECT_ROOT / "starlight-guidebook-science-zh.epub"
 ENTITY_LABELS = PROJECT_ROOT / "data" / "entity_labels_zh.yml"
 
 STARLIGHT_RULES_ENTRY = "StarlightRuleset"
+STARLIGHT_RULE_CHILDREN = (
+    *(f"RuleSL{index}" for index in range(17)),
+    "Metashield",
+)
 CUSTOM_ROOT_PAGES = ("translation-conventions",)
 CUSTOM_PAGE_PARENTS = {"artifact-guide": "Xenoarchaeology"}
 CUSTOM_PAGE_ENGLISH_TITLES = {
     "artifact-guide": "Artifact Guide",
     "translation-conventions": "Translation Conventions",
+    "server-rule-0": "Rule 0",
 }
 DISCIPLINE_ZH = {
     "Industrial": "工业",
@@ -115,7 +120,11 @@ def build_guide_tree(
         entry: guidebook_source.GuideEntry,
     ) -> str:
         title = str(page["title"])
-        english = locales.get(entry.name_key) or guidebook_source._humanize(entry.id)
+        english = (
+            CUSTOM_PAGE_ENGLISH_TITLES.get(str(page["id"]))
+            or locales.get(entry.name_key)
+            or guidebook_source._humanize(entry.id)
+        )
         normalized_title = title.casefold()
         variants = {english.casefold(), english.casefold().removesuffix("s")}
         normalized_english = english.casefold()
@@ -137,7 +146,11 @@ def build_guide_tree(
         entry = entries_by_id.get(entry_id)
         if entry is None or entry_id in visited:
             return None
-        if entry.rule_entry and entry.id != STARLIGHT_RULES_ENTRY:
+        if (
+            entry.rule_entry
+            and entry.id != STARLIGHT_RULES_ENTRY
+            and entry.id not in STARLIGHT_RULE_CHILDREN
+        ):
             return None
         visited.add(entry_id)
 
@@ -155,9 +168,12 @@ def build_guide_tree(
             page_id = None
             translated = False
 
+        child_ids = entry.children
+        if entry.id == STARLIGHT_RULES_ENTRY:
+            child_ids = (*STARLIGHT_RULE_CHILDREN, *entry.children)
         children = [
             child
-            for child_id in entry.children
+            for child_id in dict.fromkeys(child_ids)
             if (child := build_node(child_id)) is not None
         ]
         return {
@@ -170,7 +186,11 @@ def build_guide_tree(
         }
 
     root_entries = sorted(
-        (entries_by_id[entry_id] for entry_id in roots),
+        (
+            entries_by_id[entry_id]
+            for entry_id in roots
+            if entry_id not in STARLIGHT_RULE_CHILDREN
+        ),
         key=lambda entry: (entry.order, localized_title(entry).casefold()),
     )
     tree = [
@@ -587,6 +607,11 @@ def build_epub(
             content = (
                 page["content"].replace('href="', 'href="').replace('.html"', '.xhtml"')
             )
+            content = re.sub(
+                r'<a href="en/[^"]+\.xhtml">(.*?)</a>',
+                r"\1",
+                content,
+            )
             xhtml = page_template.render(title=page["title"], content=content)
             archive.writestr(f"OEBPS/{filename}", xhtml)
             manifest_items.append(
@@ -652,6 +677,16 @@ def main() -> int:
             for page in pages
             if page.get("source", "").startswith("ServerInfo/")
         }
+        guide_targets = {
+            entry.id: (
+                str(translated_by_source[entry.text]["url"])
+                if entry.text in translated_by_source
+                else english_urls[entry.id]
+            )
+            for entry in entries
+        }
+        for page in pages:
+            page["body"] = rewrite_guide_links(page["body"], guide_targets)
         english_pages = build_english_pages(
             connection,
             entries,

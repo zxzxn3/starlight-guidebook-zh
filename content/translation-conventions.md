@@ -59,6 +59,14 @@ source: Local translation policy
 | Chassis | 底盘 | 赛博格或机甲的承载结构 |
 | R&D | 研发 | Research and Development |
 | SOP | 标准作业程序 | Standard Operating Procedure |
+| MRP | 中角色扮演 | Medium Roleplay |
+| Corporate Law | 企业法 | 空间站世界观内的法律体系 |
+| Metashield | 元信息屏障 | 跨回合角色知识边界 |
+| SSD | 断线休眠 | Space Sleep Disorder，角色仍可重新连接 |
+| Antagonist | 敌对角色 | 当回合获得敌对目标的角色 |
+| Validhunting | 猎杀敌对角色 | 非安保人员主动追捕敌对角色 |
+| New Life | 新生命 | 死亡后以新角色重新加入回合的机制 |
+| Round removal | 彻底移出当前回合 | 使角色无法被正常找回或复活 |
 
 神器节点状态直接使用游戏显示的状态名：`Locked`、`Active`、`Unlocked`、`Ready`、`Unlocking`、`Resting` 和 `Cooldown`。
 
