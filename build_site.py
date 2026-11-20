@@ -266,6 +266,7 @@ def build_english_pages(
     translated_by_source: dict[str, dict[str, Any]],
     locales: dict[str, str],
     technologies: list[guidebook_source.Technology],
+    dynamic_data: guidebook_source.DynamicGuideData,
     english_urls: dict[str, str],
     word_counts: dict[str, int],
 ) -> list[dict[str, Any]]:
@@ -299,6 +300,7 @@ def build_english_pages(
             {},
             technologies,
             locales,
+            dynamic_data,
             english=True,
         )
         content = markdown.render(body)
@@ -343,27 +345,159 @@ def entity_card(entity_id: str, caption: str | None, labels: dict[str, str]) -> 
     )
 
 
-def reagent_card(reagent_id: str, english: bool = False) -> str:
-    if english:
-        label = guidebook_source._humanize(reagent_id)
-        english_name = reagent_id
+def _dynamic_text(value: str) -> str:
+    value = re.sub(r"\[[^\]]+\]|\{\$[^}]+\}", "", value)
+    return html.escape(" ".join(value.split()))
+
+
+def _dynamic_amount(value: float) -> str:
+    number = float(value)
+    return str(int(number)) if number.is_integer() else f"{number:g}"
+
+
+def _safe_color(value: str) -> str:
+    return value if re.fullmatch(r"#[0-9A-Fa-f]{6}", value) else "#777777"
+
+
+def reagent_card(
+    reagent_id: str,
+    dynamic_data: guidebook_source.DynamicGuideData,
+) -> str:
+    reagent = next(
+        (item for item in dynamic_data.reagents if item.id == reagent_id),
+        None,
+    )
+    if reagent is None:
         return (
             '<span class="entity-card reagent-card">'
-            f"<strong>{html.escape(label)}</strong>"
-            f"<small>{html.escape(english_name)}</small>"
+            f"<strong>{html.escape(guidebook_source._humanize(reagent_id))}</strong>"
+            f"<small>{html.escape(reagent_id)}</small>"
             "</span>"
         )
-    labels = {
-        "Artifexium": ("神器激活剂", "Artifexium"),
-        "ArtifactGlue": ("神器胶", "Artifact Glue"),
-    }
-    label, english = labels.get(reagent_id, (reagent_id, reagent_id))
-    return (
-        '<span class="entity-card reagent-card">'
-        f"<strong>{html.escape(label)}</strong>"
-        f"<small>{html.escape(english)}</small>"
-        "</span>"
+    reagent_names = {item.id: item.name for item in dynamic_data.reagents}
+    reactions = [
+        reaction
+        for reaction in dynamic_data.reactions
+        if any(product_id == reagent_id for product_id, _ in reaction.products)
+    ]
+    reaction_items = []
+    for reaction in reactions:
+        reactants = " + ".join(
+            f"{html.escape(reagent_names.get(item_id, guidebook_source._humanize(item_id)))}"
+            f" {_dynamic_amount(amount)}u"
+            f"{' (catalyst)' if catalyst else ''}"
+            for item_id, amount, catalyst in reaction.reactants
+        )
+        products = " + ".join(
+            f"{html.escape(reagent_names.get(item_id, guidebook_source._humanize(item_id)))}"
+            f" {_dynamic_amount(amount)}u"
+            for item_id, amount in reaction.products
+        )
+        mixer = (
+            f" · Mixer: {html.escape(', '.join(reaction.mixer_categories))}"
+            if reaction.mixer_categories
+            else ""
+        )
+        reaction_items.append(f"<li>{reactants} → {products}{mixer}</li>")
+    recipes = (
+        '<div class="reaction-list"><strong>Recipes</strong><ul>'
+        + "".join(reaction_items)
+        + "</ul></div>"
+        if reaction_items
+        else ""
     )
+    physical = (
+        f'<p class="dynamic-muted">'
+        f"Physical description: {html.escape(reagent.physical_description)}"
+        "</p>"
+        if reagent.physical_description
+        else ""
+    )
+    description = (
+        f"<p>{html.escape(reagent.description)}</p>" if reagent.description else ""
+    )
+    return (
+        '<section class="dynamic-card reagent-card">'
+        "<h3>"
+        f'<span class="reagent-swatch" style="background:'
+        f'{_safe_color(reagent.color)}"></span>'
+        f"{html.escape(reagent.name)} <code>{html.escape(reagent.id)}</code>"
+        "</h3>"
+        f"{description}{physical}{recipes}"
+        "</section>"
+    )
+
+
+def reagent_group(
+    group: str,
+    dynamic_data: guidebook_source.DynamicGuideData,
+) -> str:
+    reagents = [reagent for reagent in dynamic_data.reagents if reagent.group == group]
+    if not reagents:
+        return (
+            '<p class="dynamic-empty">'
+            f"No reagents found in group {html.escape(group)}."
+            "</p>"
+        )
+    return "".join(reagent_card(reagent.id, dynamic_data) for reagent in reagents)
+
+
+def lawset_list(dynamic_data: guidebook_source.DynamicGuideData) -> str:
+    cards = []
+    for lawset in dynamic_data.lawsets:
+        laws = "".join(f"<li>{_dynamic_text(law)}</li>" for law in lawset.laws)
+        cards.append(
+            '<section class="lawset-card">'
+            f"<h3>{_dynamic_text(lawset.name)}</h3>"
+            f"<ol>{laws}</ol>"
+            "</section>"
+        )
+    return "".join(cards)
+
+
+def cooking_group(
+    group: str,
+    recipes: tuple[guidebook_source.CookingRecipe, ...],
+) -> str:
+    selected = [recipe for recipe in recipes if recipe.group == group]
+    if not selected:
+        return (
+            '<p class="dynamic-empty">'
+            f"No recipes found in group {html.escape(group)}."
+            "</p>"
+        )
+    cards = []
+    for recipe in selected:
+        ingredients = "".join(
+            "<li>"
+            f"{html.escape(ingredient.name)} "
+            + (
+                f"{_dynamic_amount(ingredient.amount)}u"
+                if ingredient.kind == "reagent"
+                else f"×{_dynamic_amount(ingredient.amount)}"
+            )
+            + "</li>"
+            for ingredient in recipe.ingredients
+        )
+        description = (
+            f"<p>{html.escape(recipe.result_description)}</p>"
+            if recipe.result_description
+            else ""
+        )
+        cards.append(
+            '<section class="dynamic-card recipe-card">'
+            "<h3>"
+            f"{html.escape(recipe.result_name)} "
+            f"<code>{html.escape(recipe.result_id)}</code>"
+            "</h3>"
+            f"{description}"
+            "<p><strong>Ingredients</strong></p>"
+            f"<ul>{ingredients}</ul>"
+            f"<p><strong>Time:</strong> {recipe.time} seconds</p>"
+            f"<p><strong>Device:</strong> {html.escape(recipe.device)}</p>"
+            "</section>"
+        )
+    return "".join(cards)
 
 
 def tech_table(
@@ -421,6 +555,7 @@ def replace_embeds(
     labels: dict[str, str],
     technologies: list[guidebook_source.Technology],
     locales: dict[str, str],
+    dynamic_data: guidebook_source.DynamicGuideData,
     english: bool = False,
 ) -> str:
     def entity(match: re.Match[str]) -> str:
@@ -433,8 +568,63 @@ def replace_embeds(
     )
     body = re.sub(
         r'<reagent\s+id="([^"]+)"\s*></reagent>',
-        lambda match: reagent_card(match.group(1), english=english),
+        lambda match: reagent_card(match.group(1), dynamic_data),
         body,
+    )
+    body = re.sub(
+        r'<reagent-group\s+group="([^"]+)"\s*></reagent-group>',
+        lambda match: reagent_group(match.group(1), dynamic_data),
+        body,
+    )
+    body = re.sub(
+        r'<microwave-group\s+group="([^"]+)"\s*></microwave-group>',
+        lambda match: cooking_group(
+            match.group(1),
+            dynamic_data.microwave_recipes,
+        ),
+        body,
+    )
+    body = re.sub(
+        r'<deep-fryer-group\s+group="([^"]+)"\s*></deep-fryer-group>',
+        lambda match: cooking_group(
+            match.group(1),
+            dynamic_data.deep_fryer_recipes,
+        ),
+        body,
+    )
+    body = body.replace(
+        "<lawset-list></lawset-list>",
+        lawset_list(dynamic_data),
+    )
+    body = re.sub(
+        r"^> 动态试剂组：`([^`]+)`\s*$",
+        lambda match: reagent_group(match.group(1), dynamic_data),
+        body,
+        flags=re.MULTILINE,
+    )
+    body = re.sub(
+        r"^> 动态微波炉配方组：`([^`]+)`\s*$",
+        lambda match: cooking_group(
+            match.group(1),
+            dynamic_data.microwave_recipes,
+        ),
+        body,
+        flags=re.MULTILINE,
+    )
+    body = re.sub(
+        r"^> 动态油炸锅配方组：`([^`]+)`\s*$",
+        lambda match: cooking_group(
+            match.group(1),
+            dynamic_data.deep_fryer_recipes,
+        ),
+        body,
+        flags=re.MULTILINE,
+    )
+    body = re.sub(
+        r"^> 动态法则组列表\s*$",
+        lawset_list(dynamic_data),
+        body,
+        flags=re.MULTILINE,
     )
     body = re.sub(
         r'<tech-discipline\s+id="([^"]+)"\s*></tech-discipline>',
@@ -454,6 +644,7 @@ def render_pages(
     labels: dict[str, str],
     technologies: list[guidebook_source.Technology],
     locales: dict[str, str],
+    dynamic_data: guidebook_source.DynamicGuideData,
 ) -> tuple[list[dict[str, Any]], Any]:
     markdown = MarkdownIt("commonmark", {"html": True})
     markdown.enable("table")
@@ -464,7 +655,13 @@ def render_pages(
             content = page["body"]
         else:
             body = re.sub(r"^\s*# .+?\n+", "", page["body"], count=1)
-            body = replace_embeds(body, labels, technologies, locales)
+            body = replace_embeds(
+                body,
+                labels,
+                technologies,
+                locales,
+                dynamic_data,
+            )
             body = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", body)
             content = markdown.render(body)
         rendered.append(
@@ -644,6 +841,7 @@ def main() -> int:
             connection,
             (entry.text for entry in entries),
         )
+        dynamic_data = guidebook_source.dynamic_guide_data(connection, locales)
         english_urls = english_page_urls(entries)
         tree = build_guide_tree(
             pages,
@@ -673,11 +871,18 @@ def main() -> int:
             translated_by_source,
             locales,
             technologies,
+            dynamic_data,
             english_urls,
             word_counts,
         )
     pages = order_pages_by_tree(pages, tree)
-    rendered, environment = render_pages(pages, labels, technologies, locales)
+    rendered, environment = render_pages(
+        pages,
+        labels,
+        technologies,
+        locales,
+        dynamic_data,
+    )
     build_site(rendered, english_pages, environment, version, tree)
     build_epub(rendered, environment, version)
     print(f"built {len(rendered)} pages for Starlight {version}")

@@ -109,6 +109,60 @@ class Technology:
 
 
 @dataclass(frozen=True)
+class SiliconLawset:
+    id: str
+    name: str
+    laws: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class Reagent:
+    id: str
+    name: str
+    group: str
+    description: str
+    physical_description: str
+    color: str
+
+
+@dataclass(frozen=True)
+class Reaction:
+    id: str
+    reactants: tuple[tuple[str, float, bool], ...]
+    products: tuple[tuple[str, float], ...]
+    mixer_categories: tuple[str, ...]
+    priority: int
+
+
+@dataclass(frozen=True)
+class RecipeIngredient:
+    kind: str
+    name: str
+    amount: float
+
+
+@dataclass(frozen=True)
+class CookingRecipe:
+    id: str
+    group: str
+    result_id: str
+    result_name: str
+    result_description: str
+    ingredients: tuple[RecipeIngredient, ...]
+    time: int
+    device: str
+
+
+@dataclass(frozen=True)
+class DynamicGuideData:
+    lawsets: tuple[SiliconLawset, ...]
+    reagents: tuple[Reagent, ...]
+    reactions: tuple[Reaction, ...]
+    microwave_recipes: tuple[CookingRecipe, ...]
+    deep_fryer_recipes: tuple[CookingRecipe, ...]
+
+
+@dataclass(frozen=True)
 class GuideEntry:
     id: str
     name_key: str
@@ -299,19 +353,26 @@ def _table_cell(value: str) -> str:
 
 
 def _dynamic_embeds_to_markdown(text: str) -> str:
-    labels = {
-        "GuideMicrowaveGroupEmbed": "Microwave recipe group",
-        "GuideDeepFryerGroupEmbed": "Deep fryer recipe group",
-        "GuideReagentGroupEmbed": "Reagent group",
-        "GuideReagentEmbed": "Reagent",
-        "GuideLawsetListEmbed": "Lawset list",
-    }
-    for tag, label in labels.items():
-        text = re.sub(
-            rf"<{tag}\s+([^>]*?)/>",
-            lambda match, label=label: f"\n> {label}: `{match.group(1).strip()}`\n",
-            text,
-        )
+    replacements = (
+        (
+            r'<GuideMicrowaveGroupEmbed\s+Group="([^"]+)"\s*/>',
+            r'\n<microwave-group group="\1"></microwave-group>\n',
+        ),
+        (
+            r'<GuideDeepFryerGroupEmbed\s+Group="([^"]+)"\s*/>',
+            r'\n<deep-fryer-group group="\1"></deep-fryer-group>\n',
+        ),
+        (
+            r'<GuideReagentGroupEmbed\s+Group="([^"]+)"\s*/>',
+            r'\n<reagent-group group="\1"></reagent-group>\n',
+        ),
+        (
+            r"<GuideLawsetListEmbed\s*/>",
+            r"\n<lawset-list></lawset-list>\n",
+        ),
+    )
+    for pattern, replacement in replacements:
+        text = re.sub(pattern, replacement, text)
     return text
 
 
@@ -398,6 +459,344 @@ def technologies(
     return sorted(
         entries.values(), key=lambda tech: (tech.discipline, tech.tier, tech.name)
     )
+
+
+def dynamic_guide_data(
+    connection: sqlite3.Connection,
+    locales: dict[str, str],
+) -> DynamicGuideData:
+    tracked_types = {
+        "siliconLawset",
+        "siliconLaw",
+        "reagent",
+        "reaction",
+        "microwaveMealRecipe",
+        "deepFryingRecipe",
+        "stack",
+    }
+    texts = {
+        path: read_text(connection, path)
+        for path in iter_manifest_paths(connection, "Prototypes/%.yml")
+    }
+    items = _prototype_items(texts, tracked_types)
+
+    lawset_items = _items_by_id(items["siliconLawset"])
+    law_items = _items_by_id(items["siliconLaw"])
+    lawsets = []
+    for lawset_id, raw_lawset in sorted(lawset_items.items()):
+        name_key = str(raw_lawset.get("name") or "")
+        name = _localized(locales, name_key, lawset_id)
+        laws = []
+        for law_id in raw_lawset.get("laws") or ():
+            raw_law = law_items.get(str(law_id))
+            if raw_law is None:
+                laws.append(_humanize(str(law_id)))
+                continue
+            law_key = str(raw_law.get("lawString") or "")
+            laws.append(_localized(locales, law_key, str(law_id)))
+        lawsets.append(SiliconLawset(lawset_id, name, tuple(laws)))
+
+    reagent_items = _items_by_id(items["reagent"])
+    merged_reagents = {
+        reagent_id: _merged_prototype(reagent_items, reagent_id)
+        for reagent_id in reagent_items
+    }
+    reagent_names = {
+        reagent_id: _localized(locales, raw.get("name"), reagent_id)
+        for reagent_id, raw in merged_reagents.items()
+    }
+    reagents = [
+        Reagent(
+            id=reagent_id,
+            name=reagent_names[reagent_id],
+            group=str(raw.get("group") or "Unknown"),
+            description=_localized(locales, raw.get("desc"), ""),
+            physical_description=_localized(
+                locales,
+                raw.get("physicalDesc"),
+                "",
+            ),
+            color=str(raw.get("color") or "#777777"),
+        )
+        for reagent_id, raw in merged_reagents.items()
+        if not reagent_items[reagent_id].get("abstract")
+    ]
+    reagents.sort(key=lambda reagent: (reagent.name.casefold(), reagent.id))
+
+    reactions = []
+    for raw in items["reaction"]:
+        if raw.get("source"):
+            continue
+        reactants = []
+        for reagent_id, value in (raw.get("reactants") or {}).items():
+            amount = _amount(value)
+            catalyst = bool(value.get("catalyst")) if isinstance(value, dict) else False
+            reactants.append(
+                (
+                    str(reagent_id),
+                    amount,
+                    catalyst,
+                )
+            )
+        products = []
+        for reagent_id, value in (raw.get("products") or {}).items():
+            products.append(
+                (
+                    str(reagent_id),
+                    _amount(value),
+                )
+            )
+        reactions.append(
+            Reaction(
+                id=str(raw.get("id") or ""),
+                reactants=tuple(reactants),
+                products=tuple(products),
+                mixer_categories=tuple(
+                    str(value) for value in raw.get("requiredMixerCategories") or ()
+                ),
+                priority=int(raw.get("priority") or 0),
+            )
+        )
+    reactions.sort(key=lambda reaction: (reaction.priority, len(reaction.products)))
+
+    needed_entities = set()
+    for raw in items["microwaveMealRecipe"]:
+        needed_entities.add(str(raw.get("result") or ""))
+        needed_entities.update(str(value) for value in raw.get("solids") or {})
+        needed_entities.update(str(value) for value in raw.get("stacks") or {})
+    for raw in items["deepFryingRecipe"]:
+        needed_entities.add(str(raw.get("result") or ""))
+        needed_entities.add(str(raw.get("ingredient") or ""))
+    needed_entities.discard("")
+    entity_items = _entity_items(texts, needed_entities)
+    merged_entities = {
+        entity_id: _merged_prototype(entity_items, entity_id)
+        for entity_id in entity_items
+    }
+    entity_names = {
+        entity_id: _localized(locales, raw.get("name"), entity_id)
+        for entity_id, raw in merged_entities.items()
+    }
+    entity_descriptions = {
+        entity_id: _localized(locales, raw.get("description"), "")
+        for entity_id, raw in merged_entities.items()
+    }
+    stack_items = _items_by_id(items["stack"])
+    stack_names = {
+        stack_id: _localized(
+            locales,
+            _merged_prototype(stack_items, stack_id).get("name"),
+            stack_id,
+        )
+        for stack_id in stack_items
+    }
+
+    microwave_recipes = _cooking_recipes(
+        items["microwaveMealRecipe"],
+        reagent_names,
+        stack_names,
+        entity_names,
+        entity_descriptions,
+        default_device="Microwave",
+    )
+    deep_fryer_recipes = _cooking_recipes(
+        items["deepFryingRecipe"],
+        reagent_names,
+        stack_names,
+        entity_names,
+        entity_descriptions,
+        default_device="Deep Fryer",
+    )
+    return DynamicGuideData(
+        lawsets=tuple(lawsets),
+        reagents=tuple(reagents),
+        reactions=tuple(reactions),
+        microwave_recipes=tuple(microwave_recipes),
+        deep_fryer_recipes=tuple(deep_fryer_recipes),
+    )
+
+
+def _prototype_items(
+    texts: dict[str, str],
+    tracked_types: set[str],
+) -> dict[str, list[dict[str, Any]]]:
+    items = {prototype_type: [] for prototype_type in tracked_types}
+    for text in texts.values():
+        if not any(
+            f"type: {prototype_type}" in text for prototype_type in tracked_types
+        ):
+            continue
+        for document in yaml.load_all(text, Loader=GuidebookLoader):
+            values = document if isinstance(document, list) else [document]
+            for value in values:
+                if not isinstance(value, dict):
+                    continue
+                prototype_type = value.get("type")
+                if prototype_type in tracked_types:
+                    items[str(prototype_type)].append(value)
+    return items
+
+
+def _items_by_id(
+    items: Iterable[dict[str, Any]],
+) -> dict[str, dict[str, Any]]:
+    values: dict[str, dict[str, Any]] = {}
+    for item in items:
+        item_id = str(item.get("id") or "")
+        if item_id:
+            values[item_id] = item
+    return values
+
+
+def _merged_prototype(
+    items: dict[str, dict[str, Any]],
+    identifier: str,
+) -> dict[str, Any]:
+    merged: dict[str, Any] = {}
+    visited: set[str] = set()
+
+    def merge(current_id: str) -> None:
+        if current_id in visited:
+            return
+        current = items.get(current_id)
+        if current is None:
+            return
+        visited.add(current_id)
+        parents = current.get("parent")
+        if isinstance(parents, str):
+            merge(parents)
+        elif isinstance(parents, list):
+            for parent in parents:
+                merge(str(parent))
+        merged.update(
+            (key, value) for key, value in current.items() if value is not None
+        )
+
+    merge(identifier)
+    return merged
+
+
+def _entity_items(
+    texts: dict[str, str],
+    identifiers: set[str],
+) -> dict[str, dict[str, Any]]:
+    if not identifiers:
+        return {}
+    pattern = re.compile(
+        r"^\s*id:\s*("
+        + "|".join(
+            re.escape(identifier)
+            for identifier in sorted(identifiers, key=len, reverse=True)
+        )
+        + r")\s*(?:#.*)?$",
+        re.MULTILINE,
+    )
+    entities: dict[str, dict[str, Any]] = {}
+    for text in texts.values():
+        if "- type: entity" not in text or pattern.search(text) is None:
+            continue
+        for document in yaml.load_all(text, Loader=GuidebookLoader):
+            values = document if isinstance(document, list) else [document]
+            for value in values:
+                if not isinstance(value, dict) or value.get("type") != "entity":
+                    continue
+                entity_id = str(value.get("id") or "")
+                if entity_id in identifiers:
+                    entities[entity_id] = value
+    return entities
+
+
+def _cooking_recipes(
+    raw_recipes: Iterable[dict[str, Any]],
+    reagent_names: dict[str, str],
+    stack_names: dict[str, str],
+    entity_names: dict[str, str],
+    entity_descriptions: dict[str, str],
+    default_device: str,
+) -> list[CookingRecipe]:
+    def add_ingredients(
+        target: list[RecipeIngredient],
+        kind: str,
+        values: Any,
+        names: dict[str, str],
+    ) -> None:
+        if not isinstance(values, dict):
+            return
+        for identifier, amount in sorted(
+            values.items(),
+            key=lambda item: _amount(item[1]),
+            reverse=True,
+        ):
+            item_id = str(identifier)
+            target.append(
+                RecipeIngredient(
+                    kind=kind,
+                    name=names.get(item_id, _humanize(item_id)),
+                    amount=_amount(amount),
+                )
+            )
+
+    recipes = []
+    for raw in raw_recipes:
+        group = str(raw.get("group") or "Other")
+        result_id = str(raw.get("result") or "")
+        if not group or not result_id:
+            continue
+        ingredients: list[RecipeIngredient] = []
+        add_ingredients(ingredients, "reagent", raw.get("reagents"), reagent_names)
+        add_ingredients(ingredients, "stack", raw.get("stacks"), stack_names)
+        add_ingredients(ingredients, "solid", raw.get("solids"), entity_names)
+        if default_device == "Deep Fryer":
+            ingredient_id = str(raw.get("ingredient") or "")
+            if ingredient_id:
+                ingredients.append(
+                    RecipeIngredient(
+                        kind="solid",
+                        name=entity_names.get(
+                            ingredient_id,
+                            _humanize(ingredient_id),
+                        ),
+                        amount=1,
+                    )
+                )
+        recipes.append(
+            CookingRecipe(
+                id=str(raw.get("id") or ""),
+                group=group,
+                result_id=result_id,
+                result_name=entity_names.get(result_id, _humanize(result_id)),
+                result_description=entity_descriptions.get(result_id, ""),
+                ingredients=tuple(ingredients),
+                time=int(_amount(raw.get("time", 5))),
+                device=str(raw.get("deviceType") or default_device),
+            )
+        )
+    recipes.sort(
+        key=lambda recipe: (
+            recipe.group,
+            recipe.result_name.casefold(),
+            recipe.id,
+        )
+    )
+    return recipes
+
+
+def _amount(value: Any) -> float:
+    if isinstance(value, dict):
+        value = value.get("amount", 0)
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def _localized(
+    locales: dict[str, str],
+    value: Any,
+    fallback: str,
+) -> str:
+    key = str(value or fallback)
+    return locales.get(key, key)
 
 
 def guide_entries(connection: sqlite3.Connection) -> list[GuideEntry]:

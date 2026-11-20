@@ -269,6 +269,67 @@ h1 {
   font-weight: bold;
 }
 
+.dynamic-card,
+.lawset-card {
+  margin: 12px 0;
+  padding: 10px 12px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+}
+
+.dynamic-card h3,
+.lawset-card h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+
+.dynamic-card h3 code {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: normal;
+}
+
+.dynamic-card p,
+.lawset-card ol {
+  margin: 6px 0;
+}
+
+.dynamic-muted,
+.dynamic-empty {
+  color: var(--muted);
+}
+
+.reagent-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 6px;
+  border: 1px solid var(--border);
+  vertical-align: baseline;
+}
+
+.reaction-list {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.reaction-list ul {
+  margin: 4px 0;
+  padding-left: 22px;
+}
+
+.lawset-card h3 {
+  padding: 5px 8px;
+  color: #ffffff;
+  background: #16168c;
+  text-align: center;
+}
+
+.lawset-card ol {
+  padding-left: 26px;
+}
+
 .tech-table th:nth-child(2),
 .tech-table td:nth-child(2),
 .tech-table th:nth-child(3),
