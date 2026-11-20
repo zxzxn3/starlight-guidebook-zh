@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Plumbing Machines · English source · Starlight Guidebook</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand"><a href="../index.html">Starlight Guidebook</a></div>
+  </header>
+
+  <main class="english-source">
+    <p class="source-notice">
+      <strong>English source.</strong>
+      本页尚未翻译，显示 Starlight Guidebook 的英文原文。
+      原文约 848 词。
+      <a href="../index.html">返回中文目录</a>
+    </p>
+
+    <article>
+      <h1>Plumbing Machines</h1>
+      <div class="content"><p>All plumbing machines are placed with the RPLD. Machines that require power must be within range of an APC.</p>
+<p><span class="entity-card"><strong>Plumbing Input</strong><small>PlumbingInput</small></span></p>
+<p><span class="entity-card"><strong>Plumbing Output</strong><small>PlumbingOutput</small></span></p>
+<h2>Input and Output</h2>
+<p><em>Getting reagents into and out of the network</em></p>
+<p>The Plumbing Input is a small tank you pour reagents into by hand. Other machines pull from it via the network. Connects in all directions.</p>
+<p>The Plumbing Output is a small tank you can draw reagents from using a container. It pulls reagents from the network into its buffer. Connects in all directions.</p>
+<p><span class="entity-card"><strong>Plumbing Sink</strong><small>PlumbingSink</small></span></p>
+<p><span class="entity-card"><strong>Plumbing Drain</strong><small>PlumbingDrain</small></span></p>
+<h2>Sink and Drain</h2>
+<p><em>The plumbing classics.</em></p>
+<p>The Plumbing Sink is more or less a combined input and output. Reagents drawn in from its inlets can be used to fill containers from its facet, and dumping reagents down the drain sends them into the network via its outlet.</p>
+<p>The Plumbing Drain is a floor drain that absorbs puddles and routes them into the plumbing network. Connects in all directions.</p>
+<p><span class="entity-card"><strong>Plumbing Tank</strong><small>PlumbingTank</small></span></p>
+<h2>Tank</h2>
+<p><em>Buffering reagents in the network</em></p>
+<p>The Plumbing Tank stores up to 2400u of reagents. Has one inlet and three outlets. Use tanks to buffer reagents between production stages or store large amounts of reagents.</p>
+<p><span class="entity-card"><strong>Plumbing Buffer</strong><small>PlumbingBuffer</small></span></p>
+<h2>Buffer</h2>
+<p><em>Aww cute!</em></p>
+<p>The Plumbing Buffer stores up to 240u in a low-profile tank that can be walked over. It has one inlet and three outlets, with unconnected outlets for supplying seperate networks.</p>
+<p><span class="entity-card"><strong>Plumbing Filter</strong><small>PlumbingFilter</small></span></p>
+<h2>Filter</h2>
+<p><em>Splitting reagents by type</em></p>
+<p>The Plumbing Filter separates specific reagents from the network. Set which reagents to filter via its UI. It has one inlet and two outlets:</p>
+<ul>
+<li><strong>Filtered outlet</strong> for selected reagents.</li>
+<li><strong>Passthrough outlet</strong> for non-selected reagents.</li>
+</ul>
+<p>The filter sorts incoming reagents into filtered and unfiltered internal containers, which can be pulled from the filtered and passthrough outlets respectively. It is capable of filtering off up to 4 unique reagents at a time. When disabled in the UI, all intake is treated as passthrough. Can be flipped via the RPLD.</p>
+<p><span class="entity-card"><strong>Plumbing Inline Filter</strong><small>PlumbingInlineFilter</small></span></p>
+<h2>Inline Filter</h2>
+<p><em>Skimming reagents off a network</em></p>
+<p>The Inline Plumbing Filter sits on a single run of duct with one inlet and one outlet, and draws specific reagents off it. Set which reagents to take via its UI.</p>
+<p>Unlike the regular filter it does not sort what passes through it. Like the reactor, it only asks the network for the reagents you have selected, so everything else is left alone for machines further downstream. It takes up to 10 unique reagents and holds 10u of each, so a plentiful reagent fills its own allowance and then stops rather than hogging the machine. When disabled in the UI it stops pulling, though anything already in its buffer can still be drawn out. Its casing animates while reagents are actually flowing in, so an idle filter is easy to spot.</p>
+<p><span class="entity-card"><strong>Plumbing Reactor</strong><small>PlumbingReactor</small></span></p>
+<h2>Reactor</h2>
+<p><em>Triggering chemical reactions automatically</em></p>
+<p>The Plumbing Reactor pulls specific reagents from its inlet in configured quantities, heats them, and triggers reactions. Products are moved to the outlet. Has one inlet and one outlet. Set target reagents and quantities via the UI. Requires power. Use a plunger to clear stuck reagents.</p>
+<p><span class="entity-card"><strong>Plumbing Pill Press</strong><small>PlumbingPillPress</small></span></p>
+<h2>Pill Press</h2>
+<p><em>Automated pill and patch production</em></p>
+<p>The Plumbing Pill Press pulls reagents and presses them into pills or patches at a configurable dosage. Has one main inlet that pulls from the network normally, plus two optional mixing inlets that allow ratio-controlled mixing — set a percentage for each side to blend reagents from two separate networks. Toggle between pill and patch output via the UI. Requires power.</p>
+<p><span class="entity-card"><strong>Plumbing Synthesizer</strong><small>PlumbingSynthesizer</small></span></p>
+<h2>Synthesizer</h2>
+<p><em>Generating reagents from power</em></p>
+<p>The Plumbing Synthesizer generates basic reagents from an internal battery. Select a reagent from the UI and toggle it on. The battery charges while the machine is powered and drains as reagents are synthesized. Different reagents have different power costs.</p>
+<p>Available reagents: Iron, Carbon, Copper, Hydrogen, Oxygen, Sugar, Silicon, Phosphorus.</p>
+<p><span class="entity-card"><strong>Plumbing Smart Dispenser</strong><small>PlumbingSmartDispenser</small></span></p>
+<h2>Smart Dispenser</h2>
+<p><em>Storing and dispensing reagents via labeled jugs</em></p>
+<p>The Plumbing Smart Dispenser pulls all reagents from the network and stores up to 240u of each type. It pulls <strong>40u per update</strong>, which is <strong>2x</strong> the standard <strong>20u</strong> pull rate used by most plumbing machines. Use a labeled jug on the dispenser to fill it with the matching reagent. Connects in all directions. Requires power.</p>
+<p><span class="entity-card"><strong>Plumbing Disposal</strong><small>PlumbingDisposal</small></span></p>
+<h2>Disposal</h2>
+<p><em>Vaporizes unwanted reagents</em></p>
+<p>The Plumbing Disposal has one inlet which it uses to pull reagents into an internal buffer, which are then destroyed over time. Use it to cleanly remove unwanted reagents from a duct network.</p>
+</div>
+    </article>
+
+    <footer>
+      <a href="../index.html">返回中文目录</a>
+      <span> · Starlight 0c4e88b8a014708ce7d830d4504f14f9f5b64b09 · ServerInfo/_Starlight/Guidebook/Engineering/PlumbingMachines.xml</span>
+    </footer>
+  </main>
+</body>
+</html>

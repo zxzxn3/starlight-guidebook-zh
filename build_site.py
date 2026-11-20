@@ -67,11 +67,30 @@ def summary(value: str, limit: int = 72) -> str:
     return text if len(text) <= limit else text[:limit].rstrip() + "…"
 
 
+def english_page_urls(
+    entries: list[guidebook_source.GuideEntry],
+) -> dict[str, str]:
+    urls: dict[str, str] = {}
+    used: set[str] = set()
+    for entry in entries:
+        slug = re.sub(r"[^a-z0-9._-]+", "-", entry.id.casefold()).strip("-")
+        slug = slug or "entry"
+        candidate = slug
+        counter = 2
+        while candidate in used:
+            candidate = f"{slug}-{counter}"
+            counter += 1
+        used.add(candidate)
+        urls[entry.id] = f"en/{candidate}.html"
+    return urls
+
+
 def build_guide_tree(
     pages: list[dict[str, Any]],
     entries: list[guidebook_source.GuideEntry],
     locales: dict[str, str],
     word_counts: dict[str, int],
+    english_urls: dict[str, str],
 ) -> list[dict[str, Any]]:
     entries_by_id = {entry.id: entry for entry in entries}
     page_by_source = {
@@ -128,11 +147,13 @@ def build_guide_tree(
             title = translated_title(page, entry)
             url = str(page["url"])
             page_id = str(page["id"])
+            translated = True
         else:
             words = word_counts.get(entry.text, 0)
             title = f"{localized_title(entry)}（未翻译，约 {words:,} 词）"
-            url = None
+            url = english_urls[entry.id]
             page_id = None
+            translated = False
 
         children = [
             child
@@ -144,6 +165,7 @@ def build_guide_tree(
             "page_id": page_id,
             "title": title,
             "url": url,
+            "translated": translated,
             "children": children,
         }
 
@@ -167,6 +189,7 @@ def build_guide_tree(
             "page_id": page_id,
             "title": f"{page['title']}（{english}）",
             "url": str(page["url"]),
+            "translated": True,
             "children": [],
         }
 
@@ -223,6 +246,78 @@ def order_pages_by_tree(
     )
 
 
+def rewrite_guide_links(body: str, targets: dict[str, str]) -> str:
+    def replace(match: re.Match[str]) -> str:
+        label, target = match.groups()
+        if target in targets:
+            return f"[{label}]({targets[target]})"
+        if "://" in target or target.startswith(("#", "mailto:")):
+            return match.group(0)
+        if target.endswith((".html", ".xhtml", ".pdf", ".png", ".svg")):
+            return match.group(0)
+        return label
+
+    return re.sub(r"(?<!!)\[([^\]]+)\]\(([^()\s]+)\)", replace, body)
+
+
+def build_english_pages(
+    connection: Any,
+    entries: list[guidebook_source.GuideEntry],
+    translated_by_source: dict[str, dict[str, Any]],
+    locales: dict[str, str],
+    technologies: list[guidebook_source.Technology],
+    english_urls: dict[str, str],
+    word_counts: dict[str, int],
+) -> list[dict[str, Any]]:
+    markdown = MarkdownIt("commonmark", {"html": True})
+    markdown.enable("table")
+    markdown.enable("strikethrough")
+    targets = {
+        entry.id: (
+            f"../{translated_by_source[entry.text]['url']}"
+            if entry.text in translated_by_source
+            else english_urls[entry.id].removeprefix("en/")
+        )
+        for entry in entries
+    }
+    pages: list[dict[str, Any]] = []
+    source_cache: dict[str, str] = {}
+    for entry in entries:
+        if entry.text in translated_by_source:
+            continue
+        if entry.text not in source_cache:
+            source_cache[entry.text] = guidebook_source.read_text(
+                connection,
+                entry.text,
+            )
+        source = source_cache[entry.text]
+        body = guidebook_source.original_markdown(source)
+        body = re.sub(r"^\s*# .+?\n+", "", body, count=1)
+        body = rewrite_guide_links(body, targets)
+        body = replace_embeds(
+            body,
+            {},
+            technologies,
+            locales,
+            english=True,
+        )
+        content = markdown.render(body)
+        if not plain_text(content).strip():
+            content = "<p>This Guidebook entry has no body text.</p>"
+        pages.append(
+            {
+                "id": f"en-{entry.id}",
+                "title": locales.get(entry.name_key)
+                or guidebook_source._humanize(entry.id),
+                "url": english_urls[entry.id],
+                "source": entry.text,
+                "words": word_counts.get(entry.text, 0),
+                "content": content,
+            }
+        )
+    return sorted(pages, key=lambda page: page["title"].casefold())
+
+
 def load_pages() -> list[dict[str, Any]]:
     pages: list[dict[str, Any]] = []
     for path in sorted(CONTENT_ROOT.glob("*.md")):
@@ -248,7 +343,16 @@ def entity_card(entity_id: str, caption: str | None, labels: dict[str, str]) -> 
     )
 
 
-def reagent_card(reagent_id: str) -> str:
+def reagent_card(reagent_id: str, english: bool = False) -> str:
+    if english:
+        label = guidebook_source._humanize(reagent_id)
+        english_name = reagent_id
+        return (
+            '<span class="entity-card reagent-card">'
+            f"<strong>{html.escape(label)}</strong>"
+            f"<small>{html.escape(english_name)}</small>"
+            "</span>"
+        )
     labels = {
         "Artifexium": ("神器激活剂", "Artifexium"),
         "ArtifactGlue": ("神器胶", "Artifact Glue"),
@@ -266,6 +370,7 @@ def tech_table(
     discipline: str,
     technologies: list[guidebook_source.Technology],
     locales: dict[str, str],
+    english: bool = False,
 ) -> str:
     selected = [tech for tech in technologies if tech.discipline == discipline]
     rows: list[str] = []
@@ -296,12 +401,18 @@ def tech_table(
             f"<td>{html.escape(prerequisites)}</td>"
             "</tr>"
         )
-    title = DISCIPLINE_ZH.get(discipline, discipline)
+    title = discipline if english else DISCIPLINE_ZH.get(discipline, discipline)
+    if english:
+        headers = "<th>Technology</th><th>Tier</th><th>Cost</th><th>Prerequisites</th>"
+        suffix = " discipline"
+    else:
+        headers = "<th>科技</th><th>等级</th><th>研究点</th><th>前置</th>"
+        suffix = "学科"
     return (
-        f'<div class="tech-table-wrap"><h3>{html.escape(title)}学科</h3>'
-        '<table class="tech-table"><thead><tr>'
-        "<th>科技</th><th>等级</th><th>研究点</th><th>前置</th>"
-        "</tr></thead><tbody>" + "".join(rows) + "</tbody></table></div>"
+        f'<div class="tech-table-wrap"><h3>{html.escape(title)}{suffix}</h3>'
+        f'<table class="tech-table"><thead><tr>{headers}</tr></thead><tbody>'
+        + "".join(rows)
+        + "</tbody></table></div>"
     )
 
 
@@ -310,6 +421,7 @@ def replace_embeds(
     labels: dict[str, str],
     technologies: list[guidebook_source.Technology],
     locales: dict[str, str],
+    english: bool = False,
 ) -> str:
     def entity(match: re.Match[str]) -> str:
         return entity_card(match.group(1), match.group(2), labels)
@@ -321,12 +433,17 @@ def replace_embeds(
     )
     body = re.sub(
         r'<reagent\s+id="([^"]+)"\s*></reagent>',
-        lambda match: reagent_card(match.group(1)),
+        lambda match: reagent_card(match.group(1), english=english),
         body,
     )
     body = re.sub(
         r'<tech-discipline\s+id="([^"]+)"\s*></tech-discipline>',
-        lambda match: tech_table(match.group(1), technologies, locales),
+        lambda match: tech_table(
+            match.group(1),
+            technologies,
+            locales,
+            english=english,
+        ),
         body,
     )
     return body
@@ -371,6 +488,7 @@ def render_pages(
 
 def build_site(
     pages: list[dict[str, Any]],
+    english_pages: list[dict[str, Any]],
     environment: Any,
     version: str,
     guide_tree: list[dict[str, Any]],
@@ -378,6 +496,7 @@ def build_site(
     if SITE_ROOT.exists():
         shutil.rmtree(SITE_ROOT)
     (SITE_ROOT / "assets").mkdir(parents=True)
+    (SITE_ROOT / "en").mkdir()
     (SITE_ROOT / ".nojekyll").write_text("", encoding="utf-8")
     shutil.copy(TEMPLATE_ROOT / "style.css", SITE_ROOT / "assets" / "style.css")
     page_template = environment.get_template("page.html")
@@ -388,7 +507,12 @@ def build_site(
             guide_tree=guide_tree,
             version=version,
             page_id=page["id"],
+            active_url=page["url"],
         )
+        (SITE_ROOT / page["url"]).write_text(output, encoding="utf-8")
+    english_template = environment.get_template("english_page.html")
+    for page in english_pages:
+        output = english_template.render(**page, version=version)
         (SITE_ROOT / page["url"]).write_text(output, encoding="utf-8")
     index = environment.get_template("index.html").render(
         guide_tree=guide_tree,
@@ -515,12 +639,34 @@ def main() -> int:
             connection,
             (entry.text for entry in entries),
         )
-    tree = build_guide_tree(pages, entries, locales, word_counts)
+        english_urls = english_page_urls(entries)
+        tree = build_guide_tree(
+            pages,
+            entries,
+            locales,
+            word_counts,
+            english_urls,
+        )
+        translated_by_source = {
+            page["source"]: page
+            for page in pages
+            if page.get("source", "").startswith("ServerInfo/")
+        }
+        english_pages = build_english_pages(
+            connection,
+            entries,
+            translated_by_source,
+            locales,
+            technologies,
+            english_urls,
+            word_counts,
+        )
     pages = order_pages_by_tree(pages, tree)
     rendered, environment = render_pages(pages, labels, technologies, locales)
-    build_site(rendered, environment, version, tree)
+    build_site(rendered, english_pages, environment, version, tree)
     build_epub(rendered, environment, version)
     print(f"built {len(rendered)} pages for Starlight {version}")
+    print(f"built {len(english_pages)} English source pages")
     print(SITE_ROOT / "index.html")
     print(EPUB_PATH)
     return 0

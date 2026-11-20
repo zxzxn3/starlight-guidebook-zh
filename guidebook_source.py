@@ -237,6 +237,129 @@ def xml_to_markdown(text: str) -> str:
     return text.strip() + "\n"
 
 
+def original_markdown(text: str) -> str:
+    text = xml_to_markdown(text)
+    text = _table_to_markdown(text)
+    text = _dynamic_embeds_to_markdown(text)
+    text = _bbcode_to_markdown(text)
+    text = re.sub(
+        r"</?(?:Box|ColorBox|Label|PanelContainer)[^>]*>",
+        " ",
+        text,
+        flags=re.IGNORECASE,
+    )
+    text = re.sub(r"<CommandButton[^>]*/?>", "", text, flags=re.IGNORECASE)
+    text = re.sub(r"\n[ \t]+\n", "\n\n", text)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    return text.strip() + "\n"
+
+
+def _table_to_markdown(text: str) -> str:
+    def replace_table(match: re.Match[str]) -> str:
+        columns = int(match.group(1))
+        cells = re.findall(
+            r"<ColorBox[^>]*>(.*?)</ColorBox>",
+            match.group(2),
+            re.DOTALL,
+        )
+        values = [_table_cell(cell) for cell in cells]
+        rows = [
+            values[index : index + columns]
+            for index in range(0, len(values), columns)
+            if len(values[index : index + columns]) == columns
+        ]
+        if not rows:
+            return "\n"
+        header = rows[0]
+        body = rows[1:]
+        lines = [
+            "| " + " | ".join(header) + " |",
+            "| " + " | ".join("---" for _ in header) + " |",
+        ]
+        lines.extend("| " + " | ".join(row) + " |" for row in body)
+        return "\n" + "\n".join(lines) + "\n"
+
+    return re.sub(
+        r'<Table\s+Columns="(\d+)"[^>]*>(.*?)</Table>',
+        replace_table,
+        text,
+        flags=re.DOTALL,
+    )
+
+
+def _table_cell(value: str) -> str:
+    value = re.sub(
+        r'<entity\s+id="([^"]+)"(?:\s+caption="([^"]*)")?\s*></entity>',
+        lambda match: match.group(2) or match.group(1),
+        value,
+    )
+    value = re.sub(r"<[^>]+>", " ", value)
+    value = _bbcode_to_markdown(value)
+    return " ".join(value.split()).replace("|", r"\|")
+
+
+def _dynamic_embeds_to_markdown(text: str) -> str:
+    labels = {
+        "GuideMicrowaveGroupEmbed": "Microwave recipe group",
+        "GuideDeepFryerGroupEmbed": "Deep fryer recipe group",
+        "GuideReagentGroupEmbed": "Reagent group",
+        "GuideReagentEmbed": "Reagent",
+        "GuideLawsetListEmbed": "Lawset list",
+    }
+    for tag, label in labels.items():
+        text = re.sub(
+            rf"<{tag}\s+([^>]*?)/>",
+            lambda match, label=label: f"\n> {label}: `{match.group(1).strip()}`\n",
+            text,
+        )
+    return text
+
+
+def _bbcode_to_markdown(text: str) -> str:
+    text = re.sub(
+        r'\[textlink="([^"]+)"\s+link="([^"]+)"\s*/?\]',
+        r"[\1](\2)",
+        text,
+    )
+    text = re.sub(
+        r'\[keybind="([^"]+)"\s*/?\]',
+        r"<kbd>\1</kbd>",
+        text,
+    )
+    text = re.sub(
+        r'\[protodata="([^"]+)"\s+comp="([^"]+)"\s+member="([^"]+)"[^\]]*\]',
+        r"`\1.\2.\3`",
+        text,
+    )
+    text = re.sub(
+        r"\[bold\](.*?)\[/bold\]",
+        r"<strong>\1</strong>",
+        text,
+        flags=re.DOTALL,
+    )
+    text = re.sub(
+        r"\[bolditalic\](.*?)\[/bolditalic\]",
+        r"<strong><em>\1</em></strong>",
+        text,
+        flags=re.DOTALL,
+    )
+    text = re.sub(
+        r"\[italic\](.*?)\[/italic\]",
+        r"<em>\1</em>",
+        text,
+        flags=re.DOTALL,
+    )
+    text = re.sub(
+        r"\[italics\](.*?)\[/italics\]",
+        r"<em>\1</em>",
+        text,
+        flags=re.DOTALL,
+    )
+    text = re.sub(r"\[color=[^\]]+\](.*?)\[/color\]", r"\1", text, flags=re.DOTALL)
+    text = re.sub(r"\[/?(?:color|head|lightblue|red|colopr)[^\]]*\]", "", text)
+    return text
+
+
 def _entity_markdown(entity_id: str, caption: str | None) -> str:
     caption_attr = f' caption="{html.escape(caption, quote=True)}"' if caption else ""
     return f'\n<entity id="{entity_id}"{caption_attr}></entity>\n'

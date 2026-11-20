@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Combustion Turbine · English source · Starlight Guidebook</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand"><a href="../index.html">Starlight Guidebook</a></div>
+  </header>
+
+  <main class="english-source">
+    <p class="source-notice">
+      <strong>English source.</strong>
+      本页尚未翻译，显示 Starlight Guidebook 的英文原文。
+      原文约 979 词。
+      <a href="../index.html">返回中文目录</a>
+    </p>
+
+    <article>
+      <h1>Combustion Turbine</h1>
+      <div class="content"><p>The combustion turbine makes power by pulling hot, high-pressure gas out of a burn chamber and letting it expand through its blades into a low-pressure exhaust.
+The denser the gas it draws and the bigger the drop in pressure to the exhaust, the faster the rotor spins and the more power it puts into the HV network.</p>
+<p><span class="entity-card"><strong>inlet compressor</strong><small>CombustionTurbineCompressor</small></span></p>
+<p><span class="entity-card"><strong>core rotor</strong><small>CombustionTurbineRotor</small></span></p>
+<p><span class="entity-card"><strong>turbine outlet</strong><small>CombustionTurbineOutlet</small></span></p>
+<p><span class="entity-card"><strong>control computer</strong><small>ComputerCombustionTurbine</small></span></p>
+<p><span class="entity-card"><strong>igniter</strong><small>IgniterFloor</small></span></p>
+<h2>Getting one</h2>
+<p>Cargo sells a combustion turbine crate with all three sections flatpacked, tier 1 parts already installed, and the control computer.
+To build more, research Combustion turbines (Industrial). The section boards are expensive to print (plasma and gold), and each section takes plasteel and plasma sheets to build. Sections built from boards come without parts: print tier 1 parts at the engineering techfab.</p>
+<h2>Assembly</h2>
+<p>The turbine is three machines in a row, all facing the same way. Gas flows through them in that direction, and together they act as an airtight wall:</p>
+<ul>
+<li>The inlet compressor draws gas from the tile behind it, which should be the burn chamber.</li>
+<li>The core rotor sits in the middle. It holds the generator, outputs over an HV wire under it and needs APC power for its starter motor.</li>
+<li>The turbine outlet vents the spent gas onto the tile in front of it, which should lead to space or into an exhaust pipe.</li>
+</ul>
+<p>Examine any section to check that the turbine is assembled. Link the control computer to the core rotor with a multitool.</p>
+<h2>Running it</h2>
+<ol>
+<li>Fill the burn chamber with a burn mix of about 3-5 parts oxygen to 1 part plasma. The more pressure, the more power.</li>
+<li>Make sure the exhaust side is open to space. Venting into a room at normal pressure leaves almost no pressure drop, and the turbine stalls.</li>
+<li>Light the mix with the igniter in the chamber. Link it to a button, or toggle it by hand.</li>
+<li>Turn the turbine on from the computer. The starter motor spins the rotor up, the compressor starts drawing gas, and the burn takes it from there.</li>
+</ol>
+<p>The intake regulator on the computer sets how many litres per second the compressor draws (800 L/s with a tier 1 compressor part). The same volume holds more gas at higher pressure, so a denser chamber gives more power for the same setting.
+The turbine is hungry: at 1 MPa it draws around 30 mol/s, at 2 MPa around 60 mol/s, and a fully upgraded turbine at 3 MPa takes well over 100 mol/s, so keep feeding the chamber.</p>
+<p>Cold gas barely turns the rotor, however much pressure is behind it. You only get real power from burning.
+The blades take only part of the heat out of the gas, so the exhaust is still very hot, often well over 1000 K. Unburnt fuel passes straight through, so a filter on the exhaust can collect it to burn again.</p>
+<p>If gas sits in the chamber too long, the plasma burns away and the oxygen-rich leftovers (over about 32:1) start making tritium, which burns much hotter.</p>
+<h2>Speed governor</h2>
+<p>The rotor never spins past its rated speed. As it gets close, a governor closes the intake on its own, so a very high-pressure chamber does not overspeed the turbine or waste fuel; it just holds the rated speed and maximum output.
+The computer shows when the governor is holding the rotor back. If it is holding back a lot, upgrading the parts will get you more power.</p>
+<h2>Parts and upgrades</h2>
+<p>Every section holds one part: a compressor part, a rotor part or a stator part. The turbine will not run with a part missing.
+Sections from the cargo crate come with tier 1 parts installed; tier 1 parts for sections built from boards, and spares, are printed at the engineering techfab. To reach a higher tier, use the material listed when you examine the part on it while holding it.</p>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Compressor and rotor part</th>
+<th>Stator part</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2</td>
+<td>10 plasteel</td>
+<td>15 plasteel</td>
+</tr>
+<tr>
+<td>3</td>
+<td>10 uranium</td>
+<td>15 uranium</td>
+</tr>
+<tr>
+<td>4</td>
+<td>5 diamonds</td>
+<td>8 diamonds</td>
+</tr>
+</tbody>
+</table>
+<p>Each tier raises the speed and the intake temperature the part is rated for. The turbine is rated for the average of its three parts.
+On top of that, a better compressor part draws more gas, a better rotor part loses less power to friction, and a better stator part catches more of the gas's energy.
+A tier 1 turbine tops out at about 300 kW once the chamber holds around 1.5-2 MPa of burning gas; a fully upgraded one can make about 1.5 MW from a 3 MPa burn.</p>
+<p>To swap a part, turn the turbine off and wait for the rotor to stop. Open the section's panel with a screwdriver, pry the part out with a crowbar, put the new part in and close the panel. Prying again with no part inside takes the machine apart.</p>
+<h2>Damage</h2>
+<p>The only thing that damages the turbine is gas that is too hot: if the intake gas is hotter than the parts are rated for (shown on the computer), the rotor loses integrity, and engineering is warned over the radio once it drops.
+Integrity slowly recovers while the gas is back within the rating.
+If integrity reaches zero, the rotor fails and explodes. The faster it was spinning, the bigger the explosion.
+If the computer reports overheating, cool the burn down: feed less fuel, mix in a buffer gas such as nitrogen, or upgrade the parts.</p>
+</div>
+    </article>
+
+    <footer>
+      <a href="../index.html">返回中文目录</a>
+      <span> · Starlight 0c4e88b8a014708ce7d830d4504f14f9f5b64b09 · ServerInfo/_Starlight/Guidebook/Engineering/CombustionTurbine.xml</span>
+    </footer>
+  </main>
+</body>
+</html>

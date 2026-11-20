@@ -1,24 +1,16 @@
-{% macro render_guide_tree(nodes, root="", active_page_id=None, level=1) %}
+{% macro render_guide_tree(nodes, root="", active_url=None, level=1) %}
 <ul class="guide-tree">
   {% for node in nodes %}
   <li>
     {% if node.children %}
     <details {% if level == 1 %}open{% endif %}>
       <summary>
-        {% if node.url %}
-        <a class="{% if node.page_id == active_page_id %}active{% endif %}" href="{{ root }}{{ node.url }}">{{ node.title }}</a>
-        {% else %}
-        <span class="untranslated">{{ node.title }}</span>
-        {% endif %}
+        <a class="{% if not node.translated %}untranslated {% endif %}{% if node.url == active_url %}active{% endif %}" href="{{ root }}{{ node.url }}">{{ node.title }}</a>
       </summary>
-      {{ render_guide_tree(node.children, root, active_page_id, level + 1) }}
+      {{ render_guide_tree(node.children, root, active_url, level + 1) }}
     </details>
     {% else %}
-      {% if node.url %}
-      <a class="{% if node.page_id == active_page_id %}active{% endif %}" href="{{ root }}{{ node.url }}">{{ node.title }}</a>
-      {% else %}
-      <span class="untranslated">{{ node.title }}</span>
-      {% endif %}
+      <a class="{% if not node.translated %}untranslated {% endif %}{% if node.url == active_url %}active{% endif %}" href="{{ root }}{{ node.url }}">{{ node.title }}</a>
     {% endif %}
   </li>
   {% endfor %}

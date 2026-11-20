@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fire and Gas Control · English source · Starlight Guidebook</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand"><a href="../index.html">Starlight Guidebook</a></div>
+  </header>
+
+  <main class="english-source">
+    <p class="source-notice">
+      <strong>English source.</strong>
+      本页尚未翻译，显示 Starlight Guidebook 的英文原文。
+      原文约 693 词。
+      <a href="../index.html">返回中文目录</a>
+    </p>
+
+    <article>
+      <h1>Fire and Gas Control</h1>
+      <div class="content"><p>Unfortunately, <a href="fires.html">fires</a>, <a href="spacing.html">spacing</a>, and other <a href="atmosphericupsets.html">atmospheric upsets</a> are a common occurrence on the station.
+These upsets can quickly spread throughout the station and make the atmosphere uninhabitable for the crew.</p>
+<p><span class="entity-card"><strong>Firelock</strong><small>Firelock</small></span></p>
+<p><span class="entity-card"><strong>Firelock Glass</strong><small>FirelockGlass</small></span></p>
+<p><span class="entity-card"><strong>Firelock Edge</strong><small>FirelockEdge</small></span></p>
+<p><span class="entity-card"><strong>Fire Alarm</strong><small>FireAlarm</small></span></p>
+<p>To combat this, stations have a variety of devices to help prevent these upsets from spreading.</p>
+<h2>Firelocks</h2>
+<p>Firelocks are a simple and effective way to prevent fires from spreading throughout the station.</p>
+<p>Based on conditions sensed by the firelock, or through instruction from a connected <a href="airalarms.html">air</a> or fire alarm, they can close off sections of the station to prevent the spread of dangerous conditions.</p>
+<h2>Station Sectioning</h2>
+<p>Firelocks are intentionally placed in key areas to divide the station into sections. Open spaces like hallways or promenades are divided into smaller sections. This prevents the spread of dangerous conditions to the entire station through connected rooms, hallways, and other open spaces.</p>
+<h2>Basic Operation</h2>
+<p>When not connected to an <a href="airalarms.html">air alarm</a> or fire alarm, firelocks will function based on the conditions they sense. Firelocks will drop (close) if:</p>
+<ul>
+<li>The temperature between the two sides of the firelock is different by <code>Firelock.Firelock.TemperatureThreshold</code> K or more.</li>
+<li>The pressure between the two sides of the firelock is different by <code>Firelock.Firelock.PressureThreshold</code> kPa or more.</li>
+</ul>
+<p>If these conditions continue, the firelock will enter lockout mode. Firelocks in lockout mode will have red lights and cannot be pried open by hand. They can only be opened by people with Engineering access or by using a crowbar.</p>
+<p>Firelocks in lockout mode cannot be opened by using Engineering access if they are unpowered. Only a crowbar can open an unpowered firelock in lockout mode.</p>
+<p>If the conditions between the two sides of the firelock return to within acceptable differences, the firelock will disable lockout mode, and can be opened by anyone.
+Note that this only means that the conditions are the same on both sides of the firelock, not that they are safe.</p>
+<p>A common example of this is a firelock that has released due to both sides being exposed to space.</p>
+<h2>Connecting to Air and Fire Alarms</h2>
+<p>Firelocks can be connected to <a href="airalarms.html">air alarms</a> and fire alarms to receive instructions on when to drop.
+Firelocks use the <a href="networking.html">List system</a>, and you can connect these devices using a multitool or network configurator.</p>
+<p><span class="entity-card"><strong>Firelock</strong><small>Firelock</small></span></p>
+<p><span class="entity-card"><strong>Multitool</strong><small>Multitool</small></span></p>
+<p><span class="entity-card"><strong>Network Configurator</strong><small>NetworkConfigurator</small></span></p>
+<p><span class="entity-card"><strong>Fire Alarm</strong><small>FireAlarm</small></span></p>
+<p><span class="entity-card"><strong>Air Alarm</strong><small>AirAlarm</small></span></p>
+<p>Each firelock has its own unique address. The process for connecting air vents, scrubbers, and sensors to air alarms is very similar.</p>
+<h2>Operation Under Air Alarms</h2>
+<p>When connected to an air alarm, firelocks will also drop under the command of the connected <a href="airalarms.html">air alarm</a>.</p>
+<p>Firelocks will drop if the air alarm reaches a Danger alert state. Firelocks will remain dropped until the air alarm returns to a Green alert state.</p>
+<p>Firelocks that are in lockout mode will not raise even if the air alarm returns to a Green alert state. Even if the pressure difference is resolved, the firelock will remain dropped until the air alarm re-sends a green alert state.</p>
+<h2>Operation Under Fire Alarms</h2>
+<p>When connected to a fire alarm, firelocks will drop if the fire alarm is triggered. Firelocks will remain dropped until the fire alarm is reset.</p>
+<h2>Fire Alarms</h2>
+<p>Fire alarms are devices that can be used to centrally control all connected firelocks.</p>
+<p><span class="entity-card"><strong>Fire Alarm</strong><small>FireAlarm</small></span></p>
+<p>Devices with sensors can be <a href="networking.html">linked</a> to fire alarms, which will trigger the fire alarm if the sensor enters the Danger temperature threshold as defined by its sensors.</p>
+<p>When the fire alarm is triggered, all connected firelocks will be overridden with a Danger alert state and will drop.</p>
+<p>The alarm will automatically clear itself when the sensor returns to a Normal temperature threshold.</p>
+<p>You can trigger and reset a fire alarm manually by interacting with it.</p>
+<p>This can be used to quickly drop firelocks in a room manually, or to raise them after an upset has been resolved.</p>
+</div>
+    </article>
+
+    <footer>
+      <a href="../index.html">返回中文目录</a>
+      <span> · Starlight 0c4e88b8a014708ce7d830d4504f14f9f5b64b09 · ServerInfo/Guidebook/Engineering/FireAndGasControl.xml</span>
+    </footer>
+  </main>
+</body>
+</html>

@@ -16,7 +16,7 @@ RAW_MARKERS = ("<entity ", "<reagent ", "<tech-discipline ", "**")
 
 
 def check_site() -> int:
-    pages = list(SITE_ROOT.glob("*.html"))
+    pages = list(SITE_ROOT.rglob("*.html"))
     if not pages:
         raise AssertionError("no generated HTML pages")
     index_source = (SITE_ROOT / "index.html").read_text(encoding="utf-8")

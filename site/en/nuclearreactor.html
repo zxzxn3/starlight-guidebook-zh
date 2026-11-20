@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nuclear Reactor · English source · Starlight Guidebook</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand"><a href="../index.html">Starlight Guidebook</a></div>
+  </header>
+
+  <main class="english-source">
+    <p class="source-notice">
+      <strong>English source.</strong>
+      本页尚未翻译，显示 Starlight Guidebook 的英文原文。
+      原文约 1162 词。
+      <a href="../index.html">返回中文目录</a>
+    </p>
+
+    <article>
+      <h1>Nuclear Reactor</h1>
+      <div class="content"><GuideEntityEmbed Entity="NuclearReactorNormal" Scale="1.5"/>
+<pre><code>The Nuclear Reactor is the primary source of heat the generator uses to make power.
+
+It is represented as a grid of Reactor Rod ports, which engineers can insert different fabricated rods into.
+
+Heat is generated through fission reactions inside fuel rods and transferred into the coolant gas by gas channels.
+
+## Reactor Rods
+</code></pre>
+<p><span class="entity-card"><strong>Nuclear Fabricator</strong><small>NuclearFabricator</small></span></p>
+<p><span class="entity-card"><strong>fuel rod</strong><small>CerenkiteReactorFuelRod</small></span></p>
+<p><span class="entity-card"><strong>control rod</strong><small>BohrumReactorControlRod</small></span></p>
+<p><span class="entity-card"><strong>gas channel</strong><small>SteelReactorGasChannel</small></span></p>
+<p><span class="entity-card"><strong>heat exchanger</strong><small>SteelReactorHeatExchanger</small></span></p>
+<pre><code>Reactor Rods are the parts that go into the Reactor grid and cause it to function.
+
+They transfer heat and interact with neutrons within the Reactor.
+
+If a Reactor Rod's Temperature reaches `CerenkiteReactorFuelRod.ReactorPart.MeltingPoint`k, it will begin to melt.
+
+Once melted it will become much more active and able to transfer heat into the Reactor, which may cause a total meltdown.
+
+Handling hot Reactor Rods can cause serious burns.
+
+If it is hotter than `CerenkiteReactorFuelRod.ReactorPart.HotTemp`C you'll need gloves to be able to handle them. At `CerenkiteReactorFuelRod.ReactorPart.BurnTemp`C, not even gloves will protect you.
+
+There are four different types of Reactor Rods that can be manufactured from a variety of [materials](nuclearmaterials.html) and placed into the Reactor grid: Fuel Rods, Control Rods, Gas Channels, and Heat Exchangers.
+
+### Fuel Rods
+Fuel Rods are the source of neutrons and heat within the Reactor.
+
+They can emit neutrons through spontaneous decay or from interacting with existing neutrons, creating heat.
+
+They have two statistics that determine their effectiveness and volatility:
+- Neutron Radioactivity: Creates high-energy neutrons and large amounts of heat. Decays into Radioactivity.
+- Radioactivity: Creates neutrons and heat. Decays into Spent Fuel.
+
+They also keep track of how much Spent Fuel they contain, which does not affect the Fuel Rod's performance, but can indicate when it is time to replace it.
+</code></pre>
+<p><span class="entity-card"><strong>Nuclear Centrifuge</strong><small>NuclearCentrifuge</small></span></p>
+<p><span class="entity-card"><strong>Ingot Plutonium</strong><small>IngotPlutonium</small></span></p>
+<pre><code>Once a Fuel Rod contains enough Spent Fuel, it can be reprocessed by a nuclear centrifuge to create plutonium, which can be used to make plutonium fuel rods.
+
+### Control Rods
+Control rods control the flow of neutrons within the Reactor.
+
+They have the unique property of being able to be adjusted, which changes how effective they are.
+
+They can control the power output of a reactor by limiting the number of neutrons that go through them and into a Fuel Rod.
+
+### Gas Channels
+Gas Channels transfer heat from themselves into the coolant gas that flows through them.
+
+Each Gas Channel will increase the flow rate by `SteelReactorGasChannel.ReactorPart.GasVolume` L/s, allowing the Reactor to process more gas at once.
+
+### Heat Exchangers
+Heat Exchangers guide the spread of heat within the Reactor.
+
+They are exceptionally good at transferring heat and don't interact with neutrons, making them ideal for getting heat from a Fuel Rod into a Gas Channel without interfering with the fission process.
+
+## Controlling the Reactor
+The Reactor is controlled and modified through its UI, which also provides information on the Reactor's status.
+
+The Reactor UI has three major panels: Targeting, Grid View, Status Panel
+
+### Targeting
+The targeting panel has controls for inserting and removing rods into and out of the Reactor grid.
+
+The position of the target are adjusted through the arrow buttons, with the exact coordinate shown in the center.
+
+Reactor Rods can be inserted or removed through the Insert/Remove button below the position buttons.
+
+If there is a Reactor Rod at the target position, it will show information on that Reactor Rod, including its:
+- Name
+- Temperature (T)
+- Neutron Radioactivity (N)
+- Radioactivity (R)
+- Spent Fuel (S)
+
+The bottom of the panel displays the name of the part that in the Reactor's inventory, which is ready to be inserted into the grid or taken out of the Reactor.
+
+### Grid View
+The grid view gives a graphic visualization of the status of the Reactor grid.
+
+The Change View button can be used to alternate between the different views:
+- Temperature View: shows the temperature of the components
+- Neutron View: shows the number of neutrons at any given position
+- Fuel View: shows the fuel level of the components
+
+### Status Panel
+The status panel gives information on the Reactor as a whole and provides control of the control rods.
+
+The Temperature Gauge shows the current temperature of the Reactor, in a range between 0k and `NuclearReactorNormal.NuclearReactor.ReactorMeltdownTemp`k.
+
+If the Reactor ever reaches `NuclearReactorNormal.NuclearReactor.ReactorMeltdownTemp`k, it will meltdown.
+
+The Radiation Gauge shows the current radiation being emitted by the Reactor, in a range between 0 and `NuclearReactorNormal.NuclearReactor.MaximumRadiation` rads.
+
+The Thermal Power Gauge shows an estimation of the amount of thermal power being made by the Reactor, in a range between 0 and `NuclearReactorNormal.NuclearReactor.MaximumThermalPower` thermal watts (Wt).
+
+Thermal Power is a decent estimation of how much power can be extracted from the gas by the [Gas Turbine](gasturbine.html).
+
+Thermal Power has a tendency to increase and decrease as the Reactor runs, rarely remaining stable.
+
+The Control Rod Gauges show the actual and set insertion levels of the control rods within the Reactor, and provide buttons to change the insertion level.
+
+100% insertion means the control rods are as effective as possible and 0% insertion means the control rods are functionally disabled.
+
+## Cooling the Reactor
+The Reactor is cooled through the use of gasses, but some gasses have effects on the Reactor when in sufficient quantities:
+</code></pre>
+<p><span class="entity-card"><strong>Plasma Canister</strong><small>PlasmaCanister</small></span></p>
+<pre><code>&lt;strong&gt;Plasma&lt;/strong&gt; has a reactive effect, creating more neutrons and decaying into &lt;strong&gt;Tritium&lt;/strong&gt;.
+
+If there is enough plasma within the Reactor, it may end up going into a runaway reaction and melting down.
+</code></pre>
+<p><span class="entity-card"><strong>Carbon Dioxide Canister</strong><small>CarbonDioxideCanister</small></span></p>
+<pre><code>&lt;strong&gt;Carbon Dioxide&lt;/strong&gt; has a moderative effect, removing neutrons that come into contact with it.
+
+This can be used to regulate a plasma reaction or slow down the Reactor.
+</code></pre>
+<p><span class="entity-card"><strong>Tritium Canister</strong><small>TritiumCanister</small></span></p>
+<pre><code>&lt;strong&gt;Tritium&lt;/strong&gt; transmutes within a Reactor, randomly decaying into a wide variety of gasses:
+- &lt;strong&gt;Oxygen&lt;/strong&gt;
+- &lt;strong&gt;Nitrogen&lt;/strong&gt;
+- &lt;strong&gt;Ammonia&lt;/strong&gt;
+- &lt;strong&gt;Nitrous Oxide&lt;/strong&gt;
+- &lt;strong&gt;Frezon&lt;/strong&gt;
+
+In the presence of &lt;strong&gt;Oxygen&lt;/strong&gt; and at the temperatures of the Reactor, &lt;strong&gt;Tritium&lt;/strong&gt; will begin to burn, creating large amounts of heat.
+
+## Reactor Radiation
+</code></pre>
+<p><span class="entity-card"><strong>Sign Radiation</strong><small>SignRadiation</small></span></p>
+<pre><code>The Reactor sometimes allows some radiation to leak out, which can pose a danger to unprotected crew.
+
+The radiation level of the Reactor is determined by how many neutrons are escaping the Reactor grid.
+</code></pre>
+<p><span class="entity-card"><strong>Closet Radiation Suit</strong><small>ClosetRadiationSuit</small></span></p>
+<p><span class="entity-card"><strong>Clothing Outer Suit Rad</strong><small>ClothingOuterSuitRad</small></span></p>
+<p><span class="entity-card"><strong>Geiger Counter</strong><small>GeigerCounter</small></span></p>
+<pre><code>Proper protection and shielding are highly recommended when working near the Reactor.
+</code></pre>
+</div>
+    </article>
+
+    <footer>
+      <a href="../index.html">返回中文目录</a>
+      <span> · Starlight 0c4e88b8a014708ce7d830d4504f14f9f5b64b09 · ServerInfo/_FarHorizons/Guidebook/Engineering/NuclearReactor.xml</span>
+    </footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Networking · English source · Starlight Guidebook</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand"><a href="../index.html">Starlight Guidebook</a></div>
+  </header>
+
+  <main class="english-source">
+    <p class="source-notice">
+      <strong>English source.</strong>
+      本页尚未翻译，显示 Starlight Guidebook 的英文原文。
+      原文约 478 词。
+      <a href="../index.html">返回中文目录</a>
+    </p>
+
+    <article>
+      <h1>Networking</h1>
+      <div class="content"><p>On the station, devices need to communicate to each other to preform their functions.
+<a href="airalarms.html">Air alarms</a> need to talk to their respective devices, <a href="airlocks.html">doors</a> need to be linked to form proper airlocks, and much more.</p>
+<p>This is done through two systems, the Link system and the List system.</p>
+<p>You can use either the Multitool or Network Configurator to interact with these systems.
+You can switch between the different systems using <strong><kbd>AltActivateItemInHand</kbd></strong> or by hovering your cursor over the device and using <strong><kbd>AltActivateItemInWorld</kbd></strong>.</p>
+<p><span class="entity-card"><strong>Multitool</strong><small>Multitool</small></span></p>
+<p><span class="entity-card"><strong>Network Configurator</strong><small>NetworkConfigurator</small></span></p>
+<p>Some devices will require access to link devices to them.
+For example, you need Atmospherics access to link devices to an <a href="airalarms.html">air alarm</a>.
+For doors, you'll need the access level of the door you're linking to.</p>
+<h2>Link System</h2>
+<p>The link system is used for explicitly linking two devices, such as linking a door to another door.</p>
+<p><span class="entity-card"><strong>Airlock External</strong><small>AirlockExternal</small></span></p>
+<p><span class="entity-card"><strong>Airlock Engineering</strong><small>AirlockEngineering</small></span></p>
+<p><span class="entity-card"><strong>Blast Door</strong><small>BlastDoor</small></span></p>
+<p><span class="entity-card"><strong>Signal Button</strong><small>SignalButton</small></span></p>
+<p>Under the link system, devices have <strong>ports</strong> that are capable of either sending or receiving signals.</p>
+<p>Hovering over a port using your cursor will show a tooltip that tells you what the port does.
+For example, output ports will state the conditions under which they will invoke a signal, and input ports will state what the device will do if it receives a signal.</p>
+<h2>List System</h2>
+<p>The list system is used for linking multiple devices to a single primary device, such as linking multiple atmospherics devices to an air alarm.</p>
+<p><span class="entity-card"><strong>Air Alarm</strong><small>AirAlarm</small></span></p>
+<p><span class="entity-card"><strong>Gas Vent Pump</strong><small>GasVentPump</small></span></p>
+<p><span class="entity-card"><strong>Gas Vent Scrubber</strong><small>GasVentScrubber</small></span></p>
+<p><span class="entity-card"><strong>Air Sensor</strong><small>AirSensor</small></span></p>
+<p><span class="entity-card"><strong>Firelock</strong><small>Firelock</small></span></p>
+<p>Each device has its own unique address, which is used to identify it in the list system. When you link a device to a primary device, you are adding the device's address to a list of devices that the primary device will communicate with.</p>
+<p>You can save a device's address to your tool by interacting with the device using <strong><kbd>Use</kbd></strong>.</p>
+<p>Once you have a list of devices saved to your tool, you can link them to a primary device by interacting with the primary device using <strong><kbd>Use</kbd></strong>, which will bring up a UI.</p>
+<p>The UI has multiple options:</p>
+<ul>
+<li>Set: Overwrites the current list of linked devices with the devices saved on the tool.</li>
+<li>Add: Adds the devices saved on the tool to the current list of linked devices.</li>
+<li>Clear: Removes all linked devices from the air alarm.</li>
+<li>Copy: Copies the list of currently linked devices to the tool.</li>
+<li>Show: Draws a line between the primary device and all linked devices. This is useful for visualizing the area the air alarm covers.</li>
+</ul>
+<p>If you need to clear your tool, you can press <strong><kbd>Use</kbd></strong> on the tool or use <strong><kbd>ActivateItemInHand</kbd></strong> to bring up a list of saved devices, and then press the &quot;Clear&quot; button.</p>
+</div>
+    </article>
+
+    <footer>
+      <a href="../index.html">返回中文目录</a>
+      <span> · Starlight 0c4e88b8a014708ce7d830d4504f14f9f5b64b09 · ServerInfo/Guidebook/Engineering/Networking.xml</span>
+    </footer>
+  </main>
+</body>
+</html>
