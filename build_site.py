@@ -26,8 +26,12 @@ EPUB_PATH = PROJECT_ROOT / "starlight-guidebook-science-zh.epub"
 ENTITY_LABELS = PROJECT_ROOT / "data" / "entity_labels_zh.yml"
 
 STARLIGHT_RULES_ENTRY = "StarlightRuleset"
-ARTIFACT_GUIDE_PARENT = "Xenoarchaeology"
-ARTIFACT_GUIDE_ENGLISH_TITLE = "Artifact Guide"
+CUSTOM_ROOT_PAGES = ("translation-conventions",)
+CUSTOM_PAGE_PARENTS = {"artifact-guide": "Xenoarchaeology"}
+CUSTOM_PAGE_ENGLISH_TITLES = {
+    "artifact-guide": "Artifact Guide",
+    "translation-conventions": "Translation Conventions",
+}
 DISCIPLINE_ZH = {
     "Industrial": "工业",
     "Arsenal": "军备",
@@ -151,31 +155,42 @@ def build_guide_tree(
         node for entry in root_entries if (node := build_node(entry.id)) is not None
     ]
 
-    artifact_page = next(
-        (page for page in pages if page["id"] == "artifact-guide"),
-        None,
-    )
-    if artifact_page:
-        artifact_node = {
-            "id": str(artifact_page["id"]),
-            "page_id": str(artifact_page["id"]),
-            "title": (f"{artifact_page['title']}（{ARTIFACT_GUIDE_ENGLISH_TITLE}）"),
-            "url": str(artifact_page["url"]),
+    pages_by_id = {str(page["id"]): page for page in pages}
+
+    def custom_node(page_id: str) -> dict[str, Any]:
+        page = pages_by_id.get(page_id)
+        if page is None:
+            raise ValueError(f"custom Guidebook page not found: {page_id}")
+        english = CUSTOM_PAGE_ENGLISH_TITLES[page_id]
+        return {
+            "id": page_id,
+            "page_id": page_id,
+            "title": f"{page['title']}（{english}）",
+            "url": str(page["url"]),
             "children": [],
         }
 
-        def attach_artifact(nodes: list[dict[str, Any]]) -> bool:
-            for node in nodes:
-                if node["id"] == ARTIFACT_GUIDE_PARENT:
-                    node["children"].append(artifact_node)
-                    return True
-                if attach_artifact(node["children"]):
-                    return True
-            return False
+    for page_id in CUSTOM_ROOT_PAGES:
+        tree.append(custom_node(page_id))
+        placed_pages.add(page_id)
 
-        if not attach_artifact(tree):
-            raise ValueError(f"Guidebook parent not found: {ARTIFACT_GUIDE_PARENT}")
-        placed_pages.add(str(artifact_page["id"]))
+    def attach_custom(
+        nodes: list[dict[str, Any]],
+        parent_id: str,
+        child: dict[str, Any],
+    ) -> bool:
+        for node in nodes:
+            if node["id"] == parent_id:
+                node["children"].append(child)
+                return True
+            if attach_custom(node["children"], parent_id, child):
+                return True
+        return False
+
+    for page_id, parent_id in CUSTOM_PAGE_PARENTS.items():
+        if not attach_custom(tree, parent_id, custom_node(page_id)):
+            raise ValueError(f"Guidebook parent not found: {parent_id}")
+        placed_pages.add(page_id)
 
     missing_pages = sorted(
         page["id"] for page in pages if page["id"] not in placed_pages

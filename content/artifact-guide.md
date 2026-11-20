@@ -23,7 +23,7 @@ source: Guidebook Xenoarchaeology + Starlight trigger prototypes
 ## 核心术语
 
 - **Node（节点）：** 神器内部可解锁的能力点。
-- **Class（类别）：** 节点层阶，依次为 Hylic、Psychic、Pneumatic、Archon、Luminary、Demiurge。
+- **Class（层阶）：** 节点所在的层级，依次为 Hylic、Psychic、Pneumatic、Archon、Luminary、Demiurge。
 - **Trigger（触发条件）：** 解锁节点需要完成的动作。
 - **Effect（效果）：** 节点解锁后发动的结果。
 - **Durability（耐久度）：** 节点还能手动发动几次。

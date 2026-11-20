@@ -15,7 +15,7 @@ source: ServerInfo/Guidebook/Science/AnalysisConsole.xml
 控制台会显示神器节点树的详细信息，包括：
 
 - **ID：** 与节点扫描器配合使用的唯一标识。
-- **类别（Class）：** 节点所在的层阶名称；同一层节点共享类别。
+- **层阶（Class）：** 节点所在的层级名称；同一层节点共享该层阶。
 - **状态：**
   - **锁定（Locked）：** 默认状态。
   - **激活（Active）：** 第一次触发后的状态。
