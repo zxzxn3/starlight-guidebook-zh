@@ -39,7 +39,7 @@ source: Local translation policy
 - 管理员帮助（Admin Help, AHelp）
 - 赛博格转换表（Cyborg Conversion Form）
 
-## 核心术语
+## 中英术语表
 
 | 英文 | 中文 | 说明 |
 | --- | --- | --- |
