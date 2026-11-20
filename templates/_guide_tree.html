@@ -1,0 +1,26 @@
+{% macro render_guide_tree(nodes, root="", active_page_id=None, level=1) %}
+<ul class="guide-tree">
+  {% for node in nodes %}
+  <li>
+    {% if node.children %}
+    <details {% if level == 1 %}open{% endif %}>
+      <summary>
+        {% if node.url %}
+        <a class="{% if node.page_id == active_page_id %}active{% endif %}" href="{{ root }}{{ node.url }}">{{ node.title }}</a>
+        {% else %}
+        <span class="untranslated">{{ node.title }}</span>
+        {% endif %}
+      </summary>
+      {{ render_guide_tree(node.children, root, active_page_id, level + 1) }}
+    </details>
+    {% else %}
+      {% if node.url %}
+      <a class="{% if node.page_id == active_page_id %}active{% endif %}" href="{{ root }}{{ node.url }}">{{ node.title }}</a>
+      {% else %}
+      <span class="untranslated">{{ node.title }}</span>
+      {% endif %}
+    {% endif %}
+  </li>
+  {% endfor %}
+</ul>
+{% endmacro %}

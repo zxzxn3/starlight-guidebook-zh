@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title }} · Starlight Guidebook</title>
+  <link rel="stylesheet" href="{{ root }}assets/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand"><a href="{{ root }}index.html">Starlight Guidebook</a></div>
+    <div class="search-wrap">
+      <input id="search" type="search" placeholder="搜索" autocomplete="off">
+      <div id="search-results" class="search-results" hidden></div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <details class="mobile-toc" open>
+        <summary>目录</summary>
+        <div class="nav-body">
+          {% from "_guide_tree.html" import render_guide_tree %}
+          {{ render_guide_tree(guide_tree, root, page_id) }}
+        </div>
+      </details>
+    </aside>
+
+    <main>
+      <article>
+        <h1>{{ title }}</h1>
+        <div class="content">{{ content | safe }}</div>
+      </article>
+
+      <nav class="page-nav">
+        {% if previous %}
+        <a href="{{ root }}{{ previous.url }}"><small>上一页</small>{{ previous.title }}</a>
+        {% else %}<span></span>{% endif %}
+        {% if next %}
+        <a class="right" href="{{ root }}{{ next.url }}"><small>下一页</small>{{ next.title }}</a>
+        {% endif %}
+      </nav>
+
+      <footer>Starlight {{ version }} · <a href="{{ root }}index.html">目录</a></footer>
+    </main>
+  </div>
+
+  <script>
+    const mobileToc = document.querySelector(".mobile-toc");
+    mobileToc.open = window.innerWidth > 800;
+  </script>
+  <script>window.SEARCH_ROOT = "{{ root }}";</script>
+  <script src="{{ root }}assets/search.js"></script>
+</body>
+</html>
