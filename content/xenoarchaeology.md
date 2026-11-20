@@ -12,8 +12,6 @@ source: ServerInfo/Guidebook/Science/Xenoarchaeology.xml
 
 解开神器的秘密可以获得研究点，并揭示奇怪、可能有用或危险的效果。
 
-完整的节点、触发条件和实验操作见[神器完全指南](artifact-guide.html)。
-
 回合开始时，科研部通常有一到两个神器。更多神器可以通过以下方式获得：
 
 - 向**货运部**订购

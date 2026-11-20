@@ -31,9 +31,7 @@ STARLIGHT_RULE_CHILDREN = (
     "Metashield",
 )
 CUSTOM_ROOT_PAGES = ("translation-conventions",)
-CUSTOM_PAGE_PARENTS = {"artifact-guide": "Xenoarchaeology"}
 CUSTOM_PAGE_ENGLISH_TITLES = {
-    "artifact-guide": "Artifact Guide",
     "translation-conventions": "Translation Conventions",
     "server-rule-0": "Rule 0",
 }
@@ -215,24 +213,6 @@ def build_guide_tree(
 
     for page_id in CUSTOM_ROOT_PAGES:
         tree.append(custom_node(page_id))
-        placed_pages.add(page_id)
-
-    def attach_custom(
-        nodes: list[dict[str, Any]],
-        parent_id: str,
-        child: dict[str, Any],
-    ) -> bool:
-        for node in nodes:
-            if node["id"] == parent_id:
-                node["children"].append(child)
-                return True
-            if attach_custom(node["children"], parent_id, child):
-                return True
-        return False
-
-    for page_id, parent_id in CUSTOM_PAGE_PARENTS.items():
-        if not attach_custom(tree, parent_id, custom_node(page_id)):
-            raise ValueError(f"Guidebook parent not found: {parent_id}")
         placed_pages.add(page_id)
 
     missing_pages = sorted(
