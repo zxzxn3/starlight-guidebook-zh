@@ -6,9 +6,9 @@ order: 40
 source: ServerInfo/Guidebook/StarlightSOP/ScienceSOP/anomalyresearch.xml
 ---
 
-# 异常研究 SOP
+# 异常研究 SOP（Anomaly Research）
 
-1. 未经研究主任逐次明确许可，不得生成异常。生成前，至少应准备好异常扫描器和 A.P.E.。
+1. 未经研究主任（Research Director）逐次明确许可，不得生成异常。生成前，至少应准备好异常扫描器（Anomaly Scanner）和 A.P.E.。
 2. 生成异常前，研究主任应通知指挥层，并通过无线电或全站广播说明生成异常的意图。
 3. 异常生成后，必须至少由两名科研部成员搜索定位；科研部成员少于五人时除外。
 4. 所有异常在连接到收容容器前，都必须完成稳定与安全收容。

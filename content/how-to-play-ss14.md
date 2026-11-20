@@ -20,7 +20,7 @@ source: ServerInfo/Guidebook/NewPlayer/NewPlayer.xml
 
 你和船员们需要共同合作、活下来，并享受这一班次。
 
-**请遵守所有服务器规则。** 有疑问或遇到违规行为时，可以使用 **管理员帮助菜单（AHelp）** 向管理员团队提问或报告。可以在控制设置中查看 AHelp 的绑定键。
+**请遵守所有服务器规则。** 有疑问或遇到违规行为时，可以使用 **管理员帮助菜单（Admin Help, AHelp）** 向管理员团队提问或报告。可以在控制设置中查看 AHelp 的绑定键。
 
 关于具体岗位和机制的详细指南，可以在 Guidebook 的其他页面中查看。
 
@@ -33,7 +33,7 @@ source: ServerInfo/Guidebook/NewPlayer/NewPlayer.xml
 - 使用 <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 移动；按住 <kbd>Shift</kbd> 慢走。
 - 使用 <kbd>Shift</kbd> + 左键检查周围的事物。
 - 使用左键与世界互动。
-- 将鼠标悬停在实体上并按右键，可以打开**上下文菜单**，其中包含更多互动选项。
+- 将鼠标悬停在实体上并按右键，可以打开**上下文菜单（Context Menu）**，其中包含更多互动选项。
 - 使用 <kbd>X</kbd> 切换左右手，使用 <kbd>Z</kbd> 激活当前手持物品。
 - 使用 <kbd>Q</kbd> 放下手中物品，也可以将物品投掷到鼠标位置。
 - 使用 <kbd>Ctrl</kbd> + 左键拉动物品，松开拉动也使用相应快捷键。

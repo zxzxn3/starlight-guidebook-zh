@@ -8,13 +8,13 @@ source: ServerInfo/Guidebook/Science/Robotics.xml
 
 # 机器人学
 
-科研部可以制造多种独特的机器人来满足空间站需求。开始制造之前，通常需要先研究**机器人学**科技。
+科研部可以制造多种独特的机器人来满足空间站需求。开始制造之前，通常需要先研究**机器人学（Robotics）**科技。
 
 ## 外骨骼制造机
 
 <entity id="ExosuitFabricator" caption="外骨骼制造机"></entity>
 
-**外骨骼制造机**负责制造大多数机器人的零件，例如：
+**外骨骼制造机（Exosuit Fabricator）**负责制造大多数机器人的零件，例如：
 
 - [赛博格](cyborgs.html)肢体
 - 机甲零件与设备
@@ -34,7 +34,7 @@ source: ServerInfo/Guidebook/Science/Robotics.xml
 <entity id="MobHonkBot" caption="小丑机器人"></entity>
 <entity id="MobMimeBot" caption="默剧机器人"></entity>
 
-**小型机器人**是执行清洁等简单任务的自动机械。它们不需要电池，但相当脆弱。制造零件同样可以通过外骨骼制造机完成。
+**小型机器人（Bot）**是执行清洁等简单任务的自动机械。它们不需要电池，但相当脆弱。制造零件同样可以通过外骨骼制造机完成。
 
 打开**制造菜单**，进入“实用工具”分类，或直接搜索“bot”，就能看到完整配方。确保配方要求的零件都在附近，然后点击**制造**。数秒后，新机器人会出现在脚边。
 
@@ -45,9 +45,9 @@ source: ServerInfo/Guidebook/Science/Robotics.xml
 <entity id="MechHamtr" caption="HAMTR"></entity>
 <entity id="MechVim" caption="Vim"></entity>
 
-**机甲**是大型金属载具，不同型号承担不同功能。它们由玩家驾驶，并需要电池供电。
+**机甲（Mech）**是大型金属载具，不同型号承担不同功能。它们由玩家驾驶，并需要电池供电。
 
-每种机甲都需要一套专属肢体和零件。零件可以在外骨骼制造机中制造，但所需**电路板**通常要在科研部的**电路印刷机**中制造。
+每种机甲都需要一套专属肢体和零件。零件可以在外骨骼制造机中制造，但所需**电路板（Circuit Board）**通常要在科研部的**电路印刷机（Circuit Imprinter）**中制造。
 
 <entity id="RipleyCentralElectronics" caption="Ripley 中央控制模块"></entity>
 <entity id="RipleyPeripheralsElectronics" caption="Ripley 外围控制模块"></entity>

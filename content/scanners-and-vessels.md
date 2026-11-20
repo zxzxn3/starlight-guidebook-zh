@@ -8,7 +8,7 @@ source: ServerInfo/Guidebook/Science/ScannersAndVessels.xml
 
 # 异常扫描器
 
-异常扫描器用来收集异常信息，通常可以在科研部的储物柜中找到。
+异常扫描器（Anomaly Scanner）用来收集异常信息，通常可以在科研部的储物柜中找到。
 
 <entity id="AnomalyScanner"></entity>
 
@@ -16,10 +16,10 @@ source: ServerInfo/Guidebook/Science/ScannersAndVessels.xml
 
 # 异常收容容器
 
-异常收容容器是一台利用异常产生研究点的设备。先使用异常扫描器扫描异常，再对空容器使用扫描器，即可把最近扫描的异常同步到容器。
+异常收容容器（Anomaly Vessel）是一台利用异常产生研究点（Research Points）的设备。先使用异常扫描器扫描异常，再对空容器使用扫描器，即可把最近扫描的异常同步到容器。
 
 <entity id="MachineAnomalyVessel"></entity>
 
 容器每秒产生的点数取决于异常的严重度、稳定性和生命值。这三项数值越高，点数产出越高。
 
-注意：异常一旦进入**超临界**，与其连接的收容容器会爆炸，并可能破坏空间站和附近设备。
+注意：异常一旦进入**超临界（Supercritical）**，与其连接的收容容器会爆炸，并可能破坏空间站和附近设备。

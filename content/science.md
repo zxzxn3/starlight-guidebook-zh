@@ -8,11 +8,11 @@ source: ServerInfo/Guidebook/Science/Science.xml
 
 # 科研部总览
 
-**科研部（Science）**通常也被称为研发部（R&D）。这个部门通过产生研究点来解锁新科技，再使用这些科技在车床上制造新物品，以支援整座空间站。
+**科研部（Science）**通常也被称为研发部（R&D）。这个部门通过产生研究点（Research Points）来解锁新科技，再使用这些科技在车床（Lathe）上制造新物品，以支援整座空间站。
 
 ## 人员构成
 
-科研部由**研究助理**和**科学家**组成，并由**研究主任**负责管理。
+科研部由**研究助理（Research Assistant）**和**科学家（Scientist）**组成，并由**研究主任（Research Director）**负责管理。
 
 <entity id="ToyFigurineScientist" caption="科学家"></entity>
 <entity id="ToyFigurineResearchDirector" caption="研究主任"></entity>
@@ -22,9 +22,9 @@ source: ServerInfo/Guidebook/Science/Science.xml
 <entity id="ComputerResearchAndDevelopment"></entity>
 <entity id="ResearchAndDevelopmentServer"></entity>
 
-部门里最重要的设施是**研发服务器**和**研发控制台**。服务器保存已经解锁的科技；控制台用于消耗研究点解锁新科技。
+部门里最重要的设施是**研发服务器（R&D Server）**和**研发控制台（R&D Console）**。服务器保存已经解锁的科技；控制台用于消耗研究点解锁新科技。
 
-每项科技都需要消耗**研究点**，解锁后会在各处的车床上增加对应配方。有些科技还有前置科技，必须先完成前置研究。
+每项科技都需要消耗**研究点**，解锁后会在各处的车床上增加对应配方。有些科技还有前置科技（Prerequisite），必须先完成前置研究。
 
 [查看完整科技列表](technologies.html)。
 

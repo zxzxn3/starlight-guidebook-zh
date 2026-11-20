@@ -8,7 +8,7 @@ source: ServerInfo/_Starlight/Guidebook/Science/Cyborgs.xml
 
 # 赛博格（Cyborg）
 
-赛博格是人机混合体，由科研部的[机器人学](robotics.html)分支制造，用于承担空间站上的各种任务。它们受严格遵循的**硅基法则**约束，无条件服务船员。
+赛博格是人机混合体，由科研部的[机器人学](robotics.html)分支制造，用于承担空间站上的各种任务。它们受严格遵循的**硅基法则（Silicon Laws）**约束，无条件服务船员。
 
 > 注意：无法则赛博格仍受服务器规则约束，只受其适用的硅基法则管理。
 
@@ -17,12 +17,12 @@ source: ServerInfo/_Starlight/Guidebook/Science/Cyborgs.xml
 <entity id="CyborgEndoskeleton" caption="赛博格内骨骼"></entity>
 <entity id="ExosuitFabricator" caption="外骨骼制造机"></entity>
 
-所有赛博格都以**内骨骼**为基础，可在**外骨骼制造机**中制造。**检查**内骨骼可以查看后续装配步骤。完成组装后，还可以通过模块或更好的电池增加工具、延长续航。
+所有赛博格都以**内骨骼（Endoskeleton）**为基础，可在**外骨骼制造机**中制造。**检查**内骨骼可以查看后续装配步骤。完成组装后，还可以通过模块或更好的电池增加工具、延长续航。
 
 新制造的赛博格需要一个能与电子身体连接的**大脑**。主要类型有两种，而且在底盘被拆解、更换或意外解体后，两者都可以继续独立说话。
 
 - **人机接口（MMI）：** 让生物大脑与电子部件通信的装置。遭受严重工伤的船员可以在身体失去后继续服务。
-- **正电子脑：** 完全人工的大脑，可以自发产生神经活动。合成神经元的解析时间并不固定，但制造赛博格时不需要从船员身上取出大脑。
+- **正电子脑（Positronic Brain）：** 完全人工的大脑，可以自发产生神经活动。合成神经元的解析时间并不固定，但制造赛博格时不需要从船员身上取出大脑。
 
 <entity id="MMIFilled" caption="人机接口（MMI）"></entity>
 <entity id="PositronicBrain" caption="正电子脑"></entity>
@@ -31,7 +31,7 @@ source: ServerInfo/_Starlight/Guidebook/Science/Cyborgs.xml
 
 ## 赛博格类型
 
-赛博格制造完成后，需要为底盘选择一种岗位。岗位决定初始模块、可安装的额外模块，以及可使用的**部门无线电频道**。所有赛博格都能使用**科研频道**和**全站频道**，并且拥有**全区域通行权限**。
+赛博格制造完成后，需要为底盘（Chassis）选择一种岗位。岗位决定初始模块、可安装的额外模块，以及可使用的**部门无线电频道**。所有赛博格都能使用**科研频道**和**全站频道**，并且拥有**全区域通行权限**。
 
 <entity id="BorgChassisGeneric" caption="通用型"></entity>
 <entity id="BorgChassisEngineer" caption="工程型"></entity>
@@ -50,7 +50,7 @@ source: ServerInfo/_Starlight/Guidebook/Science/Cyborgs.xml
 
 <entity id="BorgModuleTool" caption="赛博格工具模块"></entity>
 
-赛博格没有手，主要通过各种**模块**拾取和操作物品。每种底盘都有自己的初始模块，额外模块可以作为升级安装。额外模块可在**外骨骼制造机**中打印。
+赛博格没有手，主要通过各种**模块（Module）**拾取和操作物品。每种底盘都有自己的初始模块，额外模块可以作为升级安装。额外模块可在**外骨骼制造机**中打印。
 
 **通用模块**提供多功能工具，例如撬棍、GPS 和线缆交互能力，可装入任何底盘。**通用型底盘最多可安装五个额外模块。**
 
