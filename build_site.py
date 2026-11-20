@@ -348,6 +348,8 @@ def render_pages(
     environment = Environment(
         loader=FileSystemLoader(TEMPLATE_ROOT),
         autoescape=select_autoescape(("html", "xhtml", "xml")),
+        trim_blocks=True,
+        lstrip_blocks=True,
     )
     return rendered, environment
 
