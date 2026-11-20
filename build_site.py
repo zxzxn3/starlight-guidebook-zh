@@ -268,6 +268,7 @@ def build_english_pages(
     technologies: list[guidebook_source.Technology],
     dynamic_data: guidebook_source.DynamicGuideData,
     english_urls: dict[str, str],
+    referenced_urls: set[str],
     word_counts: dict[str, int],
 ) -> list[dict[str, Any]]:
     markdown = MarkdownIt("commonmark", {"html": True})
@@ -285,6 +286,8 @@ def build_english_pages(
     source_cache: dict[str, str] = {}
     for entry in entries:
         if entry.text in translated_by_source:
+            continue
+        if english_urls[entry.id] not in referenced_urls:
             continue
         if entry.text not in source_cache:
             source_cache[entry.text] = guidebook_source.read_text(
@@ -318,6 +321,25 @@ def build_english_pages(
             }
         )
     return sorted(pages, key=lambda page: page["title"].casefold())
+
+
+def referenced_english_urls(
+    tree: list[dict[str, Any]],
+    pages: list[dict[str, Any]],
+) -> set[str]:
+    urls: set[str] = set()
+    pending = list(tree)
+    while pending:
+        node = pending.pop()
+        if not node["translated"]:
+            urls.add(str(node["url"]))
+        pending.extend(node["children"])
+    for page in pages:
+        urls.update(
+            target.split("#", 1)[0]
+            for target in re.findall(r"\]\((en/[^)\s]+)\)", str(page["body"]))
+        )
+    return urls
 
 
 def load_pages() -> list[dict[str, Any]]:
@@ -693,7 +715,8 @@ def build_site(
     if SITE_ROOT.exists():
         shutil.rmtree(SITE_ROOT)
     (SITE_ROOT / "assets").mkdir(parents=True)
-    (SITE_ROOT / "en").mkdir()
+    if english_pages:
+        (SITE_ROOT / "en").mkdir()
     (SITE_ROOT / ".nojekyll").write_text("", encoding="utf-8")
     shutil.copy(TEMPLATE_ROOT / "style.css", SITE_ROOT / "assets" / "style.css")
     page_template = environment.get_template("page.html")
@@ -865,6 +888,7 @@ def main() -> int:
         }
         for page in pages:
             page["body"] = rewrite_guide_links(page["body"], guide_targets)
+        required_english_urls = referenced_english_urls(tree, pages)
         english_pages = build_english_pages(
             connection,
             entries,
@@ -873,6 +897,7 @@ def main() -> int:
             technologies,
             dynamic_data,
             english_urls,
+            required_english_urls,
             word_counts,
         )
     pages = order_pages_by_tree(pages, tree)
