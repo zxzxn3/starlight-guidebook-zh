@@ -1,5 +1,7 @@
 # Starlight Guidebook 中文
 
+[English](README.en.md)
+
 Starlight 服务器 Space Station 14 Guidebook 的非官方中文翻译项目。
 
 **本项目的中文正文翻译由 DeepSeek 完成；项目维护者负责人工校对、编排和发布。**
