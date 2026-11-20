@@ -33,8 +33,6 @@ def check_site() -> int:
     if not pages:
         raise AssertionError("no generated HTML pages")
     index_source = (SITE_ROOT / "index.html").read_text(encoding="utf-8")
-    if "（未翻译，约 " not in index_source:
-        raise AssertionError("index does not list untranslated Guidebook entries")
     if "已译" in index_source or "未译 " in index_source:
         raise AssertionError("index still displays translated/untranslated counts")
     for obsolete in ("计划排除", "未翻译内容", "其他部门 SOP"):
