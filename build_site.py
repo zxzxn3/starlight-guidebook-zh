@@ -27,6 +27,7 @@ ENTITY_LABELS = PROJECT_ROOT / "data" / "entity_labels_zh.yml"
 
 STARLIGHT_RULES_ENTRY = "StarlightRuleset"
 ARTIFACT_GUIDE_PARENT = "Xenoarchaeology"
+ARTIFACT_GUIDE_ENGLISH_TITLE = "Artifact Guide"
 DISCIPLINE_ZH = {
     "Industrial": "工业",
     "Arsenal": "军备",
@@ -86,6 +87,29 @@ def build_guide_tree(
             return str(page["title"])
         return locales.get(entry.name_key) or guidebook_source._humanize(entry.id)
 
+    def translated_title(
+        page: dict[str, Any],
+        entry: guidebook_source.GuideEntry,
+    ) -> str:
+        title = str(page["title"])
+        english = locales.get(entry.name_key) or guidebook_source._humanize(entry.id)
+        normalized_title = title.casefold()
+        variants = {english.casefold(), english.casefold().removesuffix("s")}
+        normalized_english = english.casefold()
+        if (
+            f"（{normalized_english}）" in normalized_title
+            or f"({normalized_english})" in normalized_title
+        ):
+            return title
+        trailing_name = re.search(r"[（(]([^（）()]*)[）)]\s*$", title)
+        if trailing_name and any(
+            variant in trailing_name.group(1).casefold()
+            for variant in variants
+            if variant
+        ):
+            return f"{title[: trailing_name.start()]}（{english}）"
+        return f"{title}（{english}）"
+
     def build_node(entry_id: str) -> dict[str, Any] | None:
         entry = entries_by_id.get(entry_id)
         if entry is None or entry_id in visited:
@@ -97,7 +121,7 @@ def build_guide_tree(
         page = page_by_source.get(entry.text)
         if page:
             placed_pages.add(str(page["id"]))
-            title = str(page["title"])
+            title = translated_title(page, entry)
             url = str(page["url"])
             page_id = str(page["id"])
         else:
@@ -135,7 +159,7 @@ def build_guide_tree(
         artifact_node = {
             "id": str(artifact_page["id"]),
             "page_id": str(artifact_page["id"]),
-            "title": str(artifact_page["title"]),
+            "title": (f"{artifact_page['title']}（{ARTIFACT_GUIDE_ENGLISH_TITLE}）"),
             "url": str(artifact_page["url"]),
             "children": [],
         }
